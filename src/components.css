@@ -1,0 +1,111 @@
+/* Flex */
+
+.flex {
+  display: flex;
+}
+
+.f-hcenter {
+  justify-content: center;
+}
+
+.f-space-between {
+  justify-content: space-between;
+}
+
+.f-space-around {
+  justify-content: space-around;
+}
+
+.f-vcenter {
+  align-items: center;
+}
+
+.f-vend {
+  align-items: flex-end;
+}
+
+.f-column {
+  flex-direction: column;
+}
+
+/* Color */
+
+.b-red {
+  background-color: red;
+}
+
+.b-blue {
+  background-color: blue;
+}
+
+.b-green {
+  background-color: green;
+}
+
+/* Text */
+
+.t-grey {
+  color: #b3b3b3;
+}
+
+/* Font */
+
+.f-20 {
+  font-size: 20px;
+}
+
+/* Other */
+
+.disable {
+  display: none;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.mr-25 {
+  margin-right: 25px;
+}
+
+/* Upload Panel */
+
+.upload-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #efefef;
+  z-index: 100;
+}
+
+.upload-box {
+  flex-direction: column;
+  width: 60%;
+  height: 60%;
+  border: 8px dashed #b3b3b3;
+  border-radius: 20px;
+  background-color: white;
+}
+
+#upload-icon {
+  width: 20%;
+  fill: #b3b3b3;
+}
+
+.upload-select {
+  border-color: #3282b8;
+}
+
+.upload-select p {
+  color: #3282b8 !important;
+}
+
+.upload-select svg {
+  fill: #3282b8 !important;
+}
