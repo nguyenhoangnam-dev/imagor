@@ -10,6 +10,7 @@ import OptionSideBar from "./components/optionSideBar";
 import StatusBar from "./components/statusBar";
 import UploadScreen from "./components/uploadScreen";
 import RenderImage from "./components/renderImage";
+import OptionMinimal from "./components/optionMinimal";
 
 import "./components.css";
 import "./App.css";
@@ -18,7 +19,7 @@ function App() {
   const appName = "2 Process Image";
 
   const [title, setTitle] = useState(appName);
-  const [showOptionSidebar, setShowOptionSidebar] = useState(true);
+  const [showOption, setShowOption] = useState(true);
 
   const [imageURL, setImageURL] = useState("");
   const [landscape, setLandscape] = useState("vertical");
@@ -36,6 +37,7 @@ function App() {
   const [currentImage, setCurrentImage] = useState(0);
   const [changeFilter, setChangeFilter] = useState(false);
   const [resetFilter, setResetFilter] = useState(false);
+  const [disableOpacity, setDisableOpacity] = useState(true);
 
   // toBlob polyfill
   if (!HTMLCanvasElement.prototype.toBlob) {
@@ -67,13 +69,18 @@ function App() {
 
     // Check support option sidebar
     if (notCanvasFilter) {
-      setShowOptionSidebar(false);
+      setShowOption(false);
     }
 
     // set image blob
     setImageURL(URL.createObjectURL(image));
 
     setCurrentImage(currentImage + 1);
+
+    // Only support opacity filter for png
+    if (image.type === "image/png") {
+      setDisableOpacity(false);
+    }
   };
 
   const getFilter = (filter, value) => {
@@ -89,19 +96,23 @@ function App() {
     <>
       <UploadScreen handleFiles={handleFiles} />
       <TopBar imageName={imageName} />
-      <div className="flex main">
+      <div className="flex main f-space-between">
         <ToolSideBar />
         <MainScreen
           imageURL={imageURL}
           landscape={landscape}
           loadImage={loadImage}
+          showOption={showOption}
         />
         <OptionSideBar
-          showOption={showOptionSidebar}
+          showOption={showOption}
+          setShowOption={setShowOption}
           getFilter={getFilter}
           setChangeFilter={setChangeFilter}
           setResetFilter={setResetFilter}
+          disableOpacity={disableOpacity}
         />
+        <OptionMinimal showOption={showOption} setShowOption={setShowOption} />
       </div>
       <StatusBar
         imageType={imageType}
@@ -109,6 +120,7 @@ function App() {
         imageUnit={imageUnit}
         imageWidth={imageWidth}
         imageHeight={imageHeight}
+        changeFilter={changeFilter}
       />
       <RenderImage
         imageURL={imageURL}

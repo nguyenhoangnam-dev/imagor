@@ -44,9 +44,13 @@ function UploadScreen(props) {
 
     let data = event.dataTransfer;
     let fileList = data.files;
-    let fileUploaded = fileList[0];
+    if (fileList.length > 1) {
+      alert("Can not upload multiple image."); // Change to error modal
+    } else {
+      let fileUploaded = fileList[0];
 
-    checkMIME(fileUploaded);
+      checkMIME(fileUploaded);
+    }
   };
 
   const finishUpload = (event) => {
@@ -111,6 +115,7 @@ function UploadScreen(props) {
         className={`upload-box flex f-hcenter f-vcenter ${
           active ? "upload-select" : ""
         }`}
+        id="upload-box"
         onClick={clickUpload}
         onDrag={dragUpload}
         onDragOver={dragUpload}

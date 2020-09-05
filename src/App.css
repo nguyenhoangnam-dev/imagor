@@ -9,19 +9,25 @@
 }
 
 .tool-sidebar {
-  width: 50px;
+  min-width: 50px;
   border-right: 1px solid black;
 }
 
 .main-screen {
-  width: calc(100% - 350px);
+  width: 100%;
+  /* max-width: calc(100% - 275px); */
   overflow-y: auto;
+}
+
+.has-option-layout {
+  max-width: calc(100% - 275px);
 }
 
 .option-sidebar {
   width: 300px;
   border-left: 1px solid black;
   padding-top: 30px;
+  background-color: white;
 }
 
 .status-bar {
@@ -73,4 +79,34 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.minimal-icon {
+  width: 20px;
+}
+
+.minimal-box {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.input-filter-percent {
+  width: 30px;
+  text-align: end;
+  border: none;
+  font-size: 15px;
+  padding-right: 3px;
+}
+
+#upload-box {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+#upload-box:hover {
+  -webkit-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 0.3s;
 }

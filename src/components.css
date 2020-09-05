@@ -72,6 +72,16 @@
   margin-right: 25px;
 }
 
+.hide {
+  display: none;
+  white-space: pre;
+}
+
+.drag-active {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+}
+
 /* Upload Panel */
 
 .upload-panel {
