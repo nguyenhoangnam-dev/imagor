@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import logo from "../process.svg";
 import exportIcon from "../inside.svg";
 import upload from "../cloud-computing.svg";

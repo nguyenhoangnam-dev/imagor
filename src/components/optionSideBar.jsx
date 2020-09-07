@@ -26,11 +26,11 @@ const ThemeButton = withStyles({
 
 function OptionSideBar(props) {
   const [resetValue, setResetValue] = useState(false);
-  const [width, setWidth] = useState(300);
-  const [height, setHeight] = useState(0);
+  const [width] = useState(300);
+  const [height] = useState(0);
 
   const [blurValue, setBlurValue] = useState(0);
-  const [changeFilter, setChangeFilter] = useState(false);
+  // const [changeFilter, setChangeFilter] = useState(false);
 
   const submitBlur = (event) => {
     if (event.key === "Enter") {
@@ -65,7 +65,7 @@ function OptionSideBar(props) {
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <SliderFilter
         className="mt-15"
@@ -78,7 +78,7 @@ function OptionSideBar(props) {
         resetValue={resetValue}
         setResetValue={setResetValue}
         disable={!props.supportFilter}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <SliderFilter
         className="mt-15"
@@ -91,7 +91,7 @@ function OptionSideBar(props) {
         resetValue={resetValue}
         setResetValue={setResetValue}
         disable={props.disableOpacity || !props.supportFilter}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <SliderFilter
         className="mt-15"
@@ -104,7 +104,7 @@ function OptionSideBar(props) {
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <SliderFilter
         className="mt-15"
@@ -117,7 +117,7 @@ function OptionSideBar(props) {
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <SliderFilter
         className="mt-15"
@@ -130,7 +130,7 @@ function OptionSideBar(props) {
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <SliderFilter
         className="mt-15"
@@ -143,7 +143,7 @@ function OptionSideBar(props) {
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
-        setChangeFilter={setChangeFilter}
+        // setChangeFilter={setChangeFilter}
       />
       <div
         className="flex f-space-between mt-15"
@@ -167,7 +167,7 @@ function OptionSideBar(props) {
         <ThemeButton
           onClick={() => {
             setResetValue(true);
-            setChangeFilter(false);
+            // setChangeFilter(false);
             props.setResetFilter(true);
           }}
           disabled={!props.supportFilter}

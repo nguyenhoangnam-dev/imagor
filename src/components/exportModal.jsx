@@ -66,9 +66,9 @@ function ExportModal(props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [destType, setDestType] = useState(null); // Will set initial image type
-  const [quality, setQuality] = useState(null);
+  // const [quality, setQuality] = useState(null);
 
-  const [renderImage, setRenderImage] = useState(false);
+  // const [renderImage, setRenderImage] = useState(false);
   const [supportQuality, setSupportQuality] = useState(true);
   const [progressFilterValue, setProgressFilterValue] = useState(0);
 
@@ -89,7 +89,7 @@ function ExportModal(props) {
   };
 
   const clickRender = (event) => {
-    setRenderImage(true);
+    // setRenderImage(true);
 
     const progressAnimation = setInterval(function () {
       setProgressFilterValue((oldProgress) => {
@@ -149,7 +149,7 @@ function ExportModal(props) {
               defaultValue={100}
               disable={!supportQuality}
               getValue={(value) => {
-                setQuality(value);
+                // setQuality(value);
               }}
               resetValue={false}
               setResetValue={(value) => {}}

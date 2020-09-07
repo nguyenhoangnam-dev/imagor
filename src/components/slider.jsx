@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import SliderMaterial from "@material-ui/core/Slider";
 import "../components.css";
@@ -38,14 +38,13 @@ function Slider(props) {
     <div className={classes.root}>
       <SliderStyle
         defaultValue={defaultValue}
-        disabled={props.disabled}
+        disabled={props.disabled || props.disable}
         aria-labelledby="discrete-slider-custom"
         step={1}
         onChange={(event, newValue) => {
           props.setFilterValue(newValue);
         }}
         value={props.filterValue}
-        disabled={props.disable}
       />
     </div>
   );
