@@ -8,6 +8,10 @@
   justify-content: center;
 }
 
+.f-hright {
+  justify-content: flex-end;
+}
+
 .f-space-between {
   justify-content: space-between;
 }
@@ -72,6 +76,14 @@
   margin-right: 25px;
 }
 
+.mt-15 {
+  margin-top: 15px;
+}
+
+.mt-25 {
+  margin-top: 25px;
+}
+
 .hide {
   display: none;
   white-space: pre;
@@ -82,6 +94,14 @@
   cursor: -webkit-grabbing;
 }
 
+.t-disabled {
+  color: #a7a7a7;
+}
+
+.i-25 {
+  width: 25px;
+}
+
 /* Upload Panel */
 
 .upload-panel {
@@ -90,7 +110,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #efefef;
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 100;
 }
 

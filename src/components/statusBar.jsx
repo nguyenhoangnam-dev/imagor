@@ -4,6 +4,7 @@ import "../components.css";
 import { withStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Tooltip from "@material-ui/core/Tooltip";
+const { Image } = require("image-js");
 
 const ProgressFilter = withStyles((theme) => ({
   root: {
@@ -23,6 +24,23 @@ const ProgressFilter = withStyles((theme) => ({
 
 function StatusBar(props) {
   const [progressFilterValue, setProgressFilterValue] = useState(0);
+  const [colorModel, setColorModel] = useState(null);
+  const [channels, setChannels] = useState(null);
+  const [bitDepth, setBitDepth] = useState(null);
+
+  useEffect(() => {
+    if (props.imageBlob && props.loadImage) {
+      props.imageBlob.arrayBuffer().then((buffer) => {
+        Image.load(buffer).then((image) => {
+          setColorModel(image.colorModel);
+          setChannels(image.channels);
+          setBitDepth(image.bitDepth * image.channels);
+        });
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadImage]);
 
   useEffect(() => {
     const progressAnimation = setInterval(function () {
@@ -42,6 +60,7 @@ function StatusBar(props) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.changeFilter]);
+
   return (
     <div className="status-bar flex f-hleft f-vcenter">
       <Tooltip title="Progress bar" placement="top">
@@ -54,10 +73,23 @@ function StatusBar(props) {
         <p>{props.imageSize}</p>
       </Tooltip>
       <Tooltip title="Image dimension" placement="top">
-        <p>{props.imageWidth + " x " + props.imageHeight}</p>
+        <p>
+          {props.imageWidth && props.imageHeight
+            ? props.imageWidth + " x " + props.imageHeight
+            : ""}
+        </p>
       </Tooltip>
       <Tooltip title="Image unit" placement="top">
         <p>{props.imageUnit}</p>
+      </Tooltip>
+      <Tooltip title="Image colour model" placement="top">
+        <p>{colorModel}</p>
+      </Tooltip>
+      <Tooltip title="Image channels" placement="top">
+        <p>{channels === 0 ? "" : channels}</p>
+      </Tooltip>
+      <Tooltip title="Image bit depth" placement="top">
+        <p>{bitDepth === 0 ? "" : bitDepth}</p>
       </Tooltip>
     </div>
   );

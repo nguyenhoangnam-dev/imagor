@@ -11,7 +11,7 @@ const useStyles = makeStyles({
 
 const SliderStyle = withStyles({
   root: {
-    // color: "#52af77",
+    color: "#3282b8",
     height: 2,
   },
   thumb: {
@@ -23,7 +23,7 @@ const SliderStyle = withStyles({
   },
   active: {},
   track: {
-    backgroundColor: "#3282b8",
+    // backgroundColor: "#3282b8",
   },
   rail: {
     backgroundColor: "#bbe1fa",
@@ -76,8 +76,9 @@ function InputFilter(props) {
         value={filterValue}
         onChange={changeInputFilter}
         onKeyUp={enterInputFilter}
+        disabled={props.disable}
       />
-      <span>%</span>
+      <span className={props.disable ? "t-disabled" : ""}>%</span>
     </div>
   );
 }
@@ -86,12 +87,16 @@ function SliderFilter(props) {
   const [filterValue, setFilterValue] = useState(props.defaultValue);
 
   useEffect(() => {
+    // if (!props.resetValue) {
+    //   props.setChangeFilter(true);
+    // }
     props.getValue(filterValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValue]);
 
   useEffect(() => {
     if (props.resetValue) {
+      // props.setChangeFilter(false);
       setFilterValue(props.defaultValue);
       props.setResetValue(false);
     }
@@ -101,10 +106,11 @@ function SliderFilter(props) {
   return (
     <div style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}>
       <div className="flex f-space-between" style={{ width: "100%" }}>
-        <p>{props.filterName}</p>
+        <p className={props.disable ? "t-disabled" : ""}>{props.filterName}</p>
         <InputFilter
           filterValue={filterValue}
           setFilterValue={setFilterValue}
+          disable={props.disable}
         />
       </div>
       <Slider

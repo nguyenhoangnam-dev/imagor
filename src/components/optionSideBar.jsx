@@ -5,12 +5,32 @@ import { ResizableBox } from "react-resizable";
 import "../resizable.css";
 import "../components.css";
 
+import { withStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+
+const ThemeButton = withStyles({
+  root: {
+    boxShadow: "none",
+    textTransform: "none",
+    fontSize: 15,
+    lineHeight: 1.5,
+    color: "white",
+    backgroundColor: "#3282b8",
+    borderColor: "#3282b8",
+    marginLeft: 10,
+    "&:hover": {
+      backgroundColor: "#0f4c75",
+    },
+  },
+})(Button);
+
 function OptionSideBar(props) {
   const [resetValue, setResetValue] = useState(false);
   const [width, setWidth] = useState(300);
   const [height, setHeight] = useState(0);
 
   const [blurValue, setBlurValue] = useState(0);
+  const [changeFilter, setChangeFilter] = useState(false);
 
   const submitBlur = (event) => {
     if (event.key === "Enter") {
@@ -35,86 +55,98 @@ function OptionSideBar(props) {
       }`}
     >
       <SliderFilter
+        className="mt-15"
         filterName={"Contrast"}
         defaultValue={100}
-        disabled={false}
+        disable={!props.supportFilter}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("contrast", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
+        setChangeFilter={setChangeFilter}
       />
       <SliderFilter
+        className="mt-15"
         filterName={"Brightness"}
         defaultValue={100}
-        disabled={false}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("brightness", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
+        disable={!props.supportFilter}
+        setChangeFilter={setChangeFilter}
       />
       <SliderFilter
+        className="mt-15"
         filterName={"Opacity"}
         defaultValue={100}
-        disabled={false}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("opacity", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
-        disable={props.disableOpacity}
+        disable={props.disableOpacity || !props.supportFilter}
+        setChangeFilter={setChangeFilter}
       />
       <SliderFilter
+        className="mt-15"
         filterName={"Saturate"}
         defaultValue={100}
-        disabled={false}
+        disable={!props.supportFilter}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("saturate", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
+        setChangeFilter={setChangeFilter}
       />
       <SliderFilter
+        className="mt-15"
         filterName={"Grayscale"}
         defaultValue={0}
-        disabled={false}
+        disable={!props.supportFilter}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("grayscale", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
+        setChangeFilter={setChangeFilter}
       />
       <SliderFilter
+        className="mt-15"
         filterName={"Invert"}
         defaultValue={0}
-        disabled={false}
+        disable={!props.supportFilter}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("invert", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
+        setChangeFilter={setChangeFilter}
       />
       <SliderFilter
+        className="mt-15"
         filterName={"Sepia"}
         defaultValue={0}
-        disabled={false}
+        disable={!props.supportFilter}
         getValue={(value) => {
           props.setChangeFilter(true);
           props.getFilter("sepia", value);
         }}
         resetValue={resetValue}
         setResetValue={setResetValue}
+        setChangeFilter={setChangeFilter}
       />
-      <div></div>
       <div
-        className="flex f-space-between"
+        className="flex f-space-between mt-15"
         style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}
       >
         <p>Blur</p>
@@ -128,22 +160,27 @@ function OptionSideBar(props) {
           <span>px</span>
         </div>
       </div>
-      <div>
-        <button
+      <div
+        className="flex f-hright mt-25"
+        style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}
+      >
+        <ThemeButton
           onClick={() => {
             setResetValue(true);
+            setChangeFilter(false);
             props.setResetFilter(true);
           }}
+          disabled={!props.supportFilter}
         >
           Reset
-        </button>
-        <button
+        </ThemeButton>
+        <ThemeButton
           onClick={() => {
             props.setShowOption(false);
           }}
         >
           Close
-        </button>
+        </ThemeButton>
       </div>
     </ResizableBox>
   );

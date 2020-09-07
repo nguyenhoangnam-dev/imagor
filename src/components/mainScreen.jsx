@@ -41,6 +41,7 @@ function MainScreen(props) {
         src={props.imageURL}
         alt="Will label later"
         className={
+          "main-image-preview " +
           (props.loadImage ? "" : "disable ") +
           (props.landscape === "vertical" ? "w-100 " : "h-100 ")
         }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { imagePattern, MIME } from "../global";
 import { checkFirstBytes } from "../helper";
 
@@ -49,6 +49,7 @@ function UploadScreen(props) {
     } else {
       let fileUploaded = fileList[0];
 
+      props.setImageBlob(fileUploaded);
       checkMIME(fileUploaded);
     }
   };
@@ -56,6 +57,7 @@ function UploadScreen(props) {
   const finishUpload = (event) => {
     const fileUploaded = event.target.files[0];
 
+    props.setImageBlob(fileUploaded);
     checkMIME(fileUploaded);
   };
 
@@ -93,7 +95,6 @@ function UploadScreen(props) {
               if (inputSize > 52428800) {
                 alert("File should be <= 50MB.");
               } else {
-                setDisable(true);
                 props.handleFiles(image);
               }
             } else {
@@ -104,6 +105,14 @@ function UploadScreen(props) {
       }
     }
   };
+
+  useEffect(() => {
+    if (props.loadImage) {
+      setDisable(true);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadImage]);
 
   return (
     <div
