@@ -64,6 +64,14 @@
   display: none;
 }
 
+.invisible {
+  visibility: hidden;
+}
+
+.visible {
+  visibility: visible;
+}
+
 .w-100 {
   width: 100%;
 }
@@ -91,7 +99,8 @@
 
 .drag-active {
   cursor: grabbing;
-  cursor: -webkit-grabbing;
+  /* cursor: -webkit-grabbing; */
+  cursor: all-scroll;
 }
 
 .t-disabled {
@@ -100,6 +109,18 @@
 
 .i-25 {
   width: 25px;
+}
+
+.c-not-allowed {
+  cursor: not-allowed !important;
+}
+
+.c-default {
+  cursor: default;
+}
+
+.c-pointer {
+  cursor: pointer;
 }
 
 /* Upload Panel */
@@ -129,13 +150,13 @@
 }
 
 .upload-select {
-  border-color: #3282b8;
+  border-color: var(--color-4);
 }
 
 .upload-select p {
-  color: #3282b8 !important;
+  color: var(--color-4) !important;
 }
 
 .upload-select svg {
-  fill: #3282b8 !important;
+  fill: var(--color-4) !important;
 }

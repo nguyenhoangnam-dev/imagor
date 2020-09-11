@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { HotKeys } from "react-hotkeys";
 
 import { notCanvasFilter } from "./global";
-import { roundBytes } from "./helper";
 
 import TopBar from "./components/topBar";
 import ToolSideBar from "./components/toolSideBar";
@@ -13,10 +13,24 @@ import RenderImage from "./components/renderImage";
 import OptionMinimal from "./components/optionMinimal";
 
 import ErrorModal from "./components/errorModal";
+import ExportModal from "./components/exportModal";
+import SettingModal from "./components/settingModal";
 import { Beforeunload } from "react-beforeunload";
+
+import createGlobalStyle from "styled-components";
 
 import "./components.css";
 import "./App.css";
+
+const GlobalStyles = createGlobalStyle.div`
+  height: 100%;
+  --color-1: ${(props) => props.color1};
+  --color-2: ${(props) => props.color2};
+  --color-3: ${(props) => props.color3};
+  --color-4: ${(props) => props.color4};
+  --contrast-3: ${(props) => props.contrast3};
+  --text-color: ${(props) => props.textColor};
+`;
 
 function App() {
   const appName = "2 Process Image";
@@ -38,7 +52,8 @@ function App() {
   const [currentValue, setCurrentValue] = useState(null);
 
   const [loadImage, setLoadImage] = useState(false);
-  const [currentImage, setCurrentImage] = useState(0);
+  const [loadURL, setLoadURL] = useState(false);
+  const [currentImage, setCurrentImage] = useState(-1);
   const [changeFilter, setChangeFilter] = useState(false);
   const [resetFilter, setResetFilter] = useState(false);
   const [disableOpacity, setDisableOpacity] = useState(false);
@@ -46,9 +61,60 @@ function App() {
   const [allImage, setAllImage] = useState([]);
   const [countImage, setCountImage] = useState(0);
   const [supportFilter, setSupportFilter] = useState(false);
+
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorTitle, setErrorTitle] = useState(null);
+  const [showFullScreen, setShowFullScreen] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showSettingModal, setShowSettingModal] = useState(false);
+
+  const [loadInformation, setLoadInformation] = useState(false);
+  const [imageHistogram, setImageHistogram] = useState([]);
+  const [loadHistogram, setLoadHistogram] = useState(false);
+
+  const [showUnload, setShowUnload] = useState(null);
+
+  // Temporary open upload panel will change in v0.5.0
+  const [showUpload, setShowUpload] = useState(true);
+
+  // Theme
+  const [color1] = useState("#f4eeff");
+  const [color2] = useState("#dcd6f7");
+  const [color3] = useState("#a6b1e1");
+  const [color4] = useState("#424874");
+  const [contrast3] = useState("#000000");
+  const [textColor] = useState("#000000");
+
+  // Store all hotkey
+  const keyMap = {
+    TOGGLE_SIDEBAR: "ctrl+b",
+    OPEN_EXPORT: "ctrl+shift+e",
+    // OPEN_UPLOAD: "ctrl+shift+u",
+    OPEN_FULLSCREEN: "ctrl+shift+f",
+    OPEN_SETTING: "alt+s",
+  };
+
+  // Handle hotkey event
+  const handlers = {
+    TOGGLE_SIDEBAR: (event) => {
+      setShowOption((show) => !show);
+    },
+    OPEN_EXPORT: (event) => {
+      setShowExportModal((show) => !show);
+    },
+    // OPEN_UPLOAD: (event) => {
+    //   setErrorTitle("Error");
+    //   setErrorMessage("Test error modal.");
+    //   setShowErrorModal((show) => !show);
+    // },
+    OPEN_FULLSCREEN: (event) => {
+      setShowFullScreen((show) => !show);
+    },
+    OPEN_SETTING: (event) => {
+      setShowSettingModal((show) => !show);
+    },
+  };
 
   // toBlob polyfill
   if (!HTMLCanvasElement.prototype.toBlob) {
@@ -69,10 +135,6 @@ function App() {
   }
 
   const handleFiles = (image) => {
-    // Get information of image
-    setImageName(image.name);
-    setImageSize(roundBytes(image.size));
-    setImageType(image.type);
     setImageUnit("px");
 
     // const imageInitialExtension = MIME[imageInitialType].ext;
@@ -92,8 +154,9 @@ function App() {
     // set image blob
     let newImageURL = URL.createObjectURL(image);
     setImageURL(newImageURL);
+    setLoadURL(true);
 
-    setCurrentImage(currentImage + 1);
+    setCurrentImage(countImage);
     setCountImage(countImage + 1);
 
     setAllImage([
@@ -123,74 +186,145 @@ function App() {
     document.title = title;
   });
 
+  // Check product or development mode
+  useEffect(() => {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+    } else {
+      setShowUnload(
+        <Beforeunload onBeforeunload={() => "You'll lose your data!"} />
+      );
+    }
+  }, []);
+
   return (
-    <>
-      <UploadScreen
-        handleFiles={handleFiles}
-        loadImage={loadImage}
-        setImageBlob={setImageBlob}
-      />
-      <TopBar
-        imageName={imageName}
-        countImage={countImage}
-        allImage={allImage}
-      />
-      <div className="flex main f-space-between">
-        <ToolSideBar />
-        <MainScreen
-          imageURL={imageURL}
-          landscape={landscape}
+    <GlobalStyles
+      color1={color1}
+      color2={color2}
+      color3={color3}
+      color4={color4}
+      contrast3={contrast3}
+      textColor={textColor}
+    >
+      <HotKeys keyMap={keyMap} handlers={handlers} className="h-100">
+        <UploadScreen
+          handleFiles={handleFiles}
           loadImage={loadImage}
-          showOption={showOption}
+          setImageName={setImageName}
+          setImageSize={setImageSize}
+          setImageType={setImageType}
+          setImageBlob={setImageBlob}
+          setShowErrorModal={setShowErrorModal}
+          setErrorTitle={setErrorTitle}
+          setErrorMessage={setErrorMessage}
+          showUpload={showUpload}
+          setShowUpload={setShowUpload}
+          currentImage={currentImage}
         />
-        <OptionSideBar
-          showOption={showOption}
-          setShowOption={setShowOption}
-          getFilter={getFilter}
+        <TopBar
+          imageName={imageName}
+          countImage={countImage}
+          allImage={allImage}
+          setShowFullScreen={setShowFullScreen}
+          setShowExportModal={setShowExportModal}
+          setShowSettingModal={setShowSettingModal}
+          setShowUpload={setShowUpload}
+          currentImage={currentImage}
+        />
+        <div className="flex main f-space-between">
+          <ToolSideBar />
+          <MainScreen
+            imageURL={imageURL}
+            landscape={landscape}
+            loadImage={loadImage}
+            showOption={showOption}
+            setShowFullScreen={setShowFullScreen}
+            showFullScreen={showFullScreen}
+            allImage={allImage}
+            setAllImage={setAllImage}
+            setLoadInformation={setLoadInformation}
+            setShowErrorModal={setShowErrorModal}
+            setErrorTitle={setErrorTitle}
+            setErrorMessage={setErrorMessage}
+            loadURL={loadURL}
+          />
+          <OptionSideBar
+            showOption={showOption}
+            setShowOption={setShowOption}
+            getFilter={getFilter}
+            setChangeFilter={setChangeFilter}
+            setResetFilter={setResetFilter}
+            disableOpacity={disableOpacity}
+            supportFilter={supportFilter}
+            setLoadHistogram={setLoadHistogram}
+            loadHistogram={loadHistogram}
+            imageHistogram={imageHistogram}
+            allImage={allImage}
+            currentImage={currentImage}
+            loadImage={loadImage}
+          />
+          <OptionMinimal
+            showOption={showOption}
+            setShowOption={setShowOption}
+          />
+        </div>
+        <StatusBar
+          loadImage={loadImage}
+          setLoadImage={setLoadImage}
+          currentImage={currentImage}
+          imageURL={imageURL}
+          imageType={imageType}
+          imageSize={imageSize}
+          imageUnit={imageUnit}
+          imageWidth={imageWidth}
+          imageHeight={imageHeight}
+          changeFilter={changeFilter}
+          imageBlob={imageBlob}
+          allImage={allImage}
+          loadInformation={loadInformation}
+          imageHistogram={imageHistogram}
+          setImageHistogram={setImageHistogram}
+          setLoadHistogram={setLoadHistogram}
+        />
+        <RenderImage
+          imageURL={imageURL}
+          setImageURL={setImageURL}
+          setLoadImage={setLoadImage}
+          setLandscape={setLandscape}
+          setImageWidth={setImageWidth}
+          setImageHeight={setImageHeight}
+          setImageSize={setImageSize}
+          filter={currentFilter}
+          value={currentValue}
+          imageType={imageType}
+          currentImage={currentImage}
+          changeFilter={changeFilter}
           setChangeFilter={setChangeFilter}
+          resetFilter={resetFilter}
           setResetFilter={setResetFilter}
-          disableOpacity={disableOpacity}
-          supportFilter={supportFilter}
+          allImage={allImage}
         />
-        <OptionMinimal showOption={showOption} setShowOption={setShowOption} />
-      </div>
-      <StatusBar
-        loadImage={loadImage}
-        currentImage={currentImage}
-        imageURL={imageURL}
-        imageType={imageType}
-        imageSize={imageSize}
-        imageUnit={imageUnit}
-        imageWidth={imageWidth}
-        imageHeight={imageHeight}
-        changeFilter={changeFilter}
-        imageBlob={imageBlob}
-      />
-      <RenderImage
-        imageURL={imageURL}
-        setImageURL={setImageURL}
-        setLoadImage={setLoadImage}
-        setLandscape={setLandscape}
-        setImageWidth={setImageWidth}
-        setImageHeight={setImageHeight}
-        setImageSize={setImageSize}
-        filter={currentFilter}
-        value={currentValue}
-        imageType={imageType}
-        currentImage={currentImage}
-        changeFilter={changeFilter}
-        setChangeFilter={setChangeFilter}
-        resetFilter={resetFilter}
-        setResetFilter={setResetFilter}
-      />
-      <ErrorModal
-        showErrorModal={showErrorModal}
-        setShowErrorModal={setShowErrorModal}
-        errorMessage={errorMessage}
-        errorTitle={errorTitle}
-      />
-      <Beforeunload onBeforeunload={() => "You'll lose your data!"} />
-    </>
+        <ErrorModal
+          showErrorModal={showErrorModal}
+          setShowErrorModal={setShowErrorModal}
+          errorMessage={errorMessage}
+          errorTitle={errorTitle}
+        />
+        <ExportModal
+          showExportModal={showExportModal}
+          setShowExportModal={setShowExportModal}
+          imageWidth={0}
+          imageHeight={0}
+          imageName={allImage.length > 0 ? allImage[0].name : ""}
+          imageUnit={allImage.length > 0 ? allImage[0].unit : ""}
+          imageURL={allImage.length > 0 ? allImage[0].url : ""}
+        />
+        <SettingModal
+          showSettingModal={showSettingModal}
+          setShowSettingModal={setShowSettingModal}
+        />
+      </HotKeys>
+      {showUnload}
+    </GlobalStyles>
   );
 }
 

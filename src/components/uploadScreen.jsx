@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { imagePattern, MIME } from "../global";
-import { checkFirstBytes } from "../helper";
+import { checkFirstBytes, roundBytes } from "../helper";
 
 import "../components.css";
 
@@ -45,7 +45,9 @@ function UploadScreen(props) {
     let data = event.dataTransfer;
     let fileList = data.files;
     if (fileList.length > 1) {
-      alert("Can not upload multiple image."); // Change to error modal
+      props.setShowErrorModal(true);
+      props.setErrorTitle("Error");
+      props.setErrorMessage("Can not drop multiple file when upload.");
     } else {
       let fileUploaded = fileList[0];
 
@@ -67,7 +69,11 @@ function UploadScreen(props) {
 
     // Check mime type
     if (!imagePattern.test(inputType)) {
-      alert("Invalid image type.");
+      props.setShowErrorModal(true);
+      props.setErrorTitle("Error");
+      props.setErrorMessage(
+        "Image type of uploaded file is invalid. Project currently only support PNG, JPG, WEBP file type."
+      );
     } else {
       if (inputType === "image/svg+xml") {
         // wwSVG.postMessage(image);
@@ -92,13 +98,24 @@ function UploadScreen(props) {
           if (!e.target.error) {
             let bytes = new Uint8Array(e.target.result);
             if (checkFirstBytes(bytes, MIME[inputType])) {
-              if (inputSize > 52428800) {
-                alert("File should be <= 50MB.");
+              if (inputSize > 419430400) {
+                props.setShowErrorModal(true);
+                props.setErrorTitle("Error");
+                props.setErrorMessage(
+                  "Size of uploaded file is too large. Project currently only support file whose size is smaller than 50MB."
+                );
               } else {
+                // Get information of image
+                props.setImageName(image.name);
+                props.setImageSize(roundBytes(image.size)); // B -> {B, KB, MB}
+                props.setImageType(image.type);
+
                 props.handleFiles(image);
               }
             } else {
-              alert("Can not read file.");
+              props.setShowErrorModal(true);
+              props.setErrorTitle("Error");
+              props.setErrorMessage("Can not read file.");
             }
           }
         };
@@ -109,10 +126,18 @@ function UploadScreen(props) {
   useEffect(() => {
     if (props.loadImage) {
       setDisable(true);
+      props.setShowUpload(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadImage]);
+
+  useEffect(() => {
+    if (props.showUpload) {
+      setDisable(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.showUpload]);
 
   return (
     <div

@@ -1,29 +1,40 @@
-import React, { useState } from "react";
+import React from "react";
+
 import logo from "../process.svg";
 import exportIcon from "../inside.svg";
 import upload from "../cloud-computing.svg";
 import changeView from "../synchronization.svg";
 import setting from "../maintenance.svg";
 import close from "../cancel.svg";
+import fullScreen from "../resize.svg";
+
 import "../components.css";
 import Tooltip from "@material-ui/core/Tooltip";
-import ExportModal from "./exportModal";
-import SettingModal from "./settingModal";
+// import ExportModal from "./exportModal";
+// import SettingModal from "./settingModal";
 
 function TagBox(props) {
   return (
-    <Tooltip title={props.tagName} placement="bottom">
-      <div className="flex f-space-between tag-box f-vcenter">
+    <div
+      className={
+        "flex f-space-between tag-box f-vcenter " +
+        (props.choose ? "choose" : "")
+      }
+    >
+      <Tooltip title={props.tagName} placement="bottom">
         <p className="tag-image-name">{props.tagName}</p>
+      </Tooltip>
+      <Tooltip title={"Close (Ctrl + W)"} placement="bottom">
         <img className="close-tag" src={close} alt="Close tag" />
-      </div>
-    </Tooltip>
+      </Tooltip>
+    </div>
   );
 }
 
 function TopBar(props) {
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [showSettingModal, setShowSettingModal] = useState(false);
+  // const [showExportModal, setShowExportModal] = useState(false);
+  // const [showSettingModal, setShowSettingModal] = useState(false);
+  // const [showFullScreen, setShowFullScreen] = useState(false)
   // const [allTagBox, setAllTagBox] = useState(null);
 
   // useEffect(() => {
@@ -42,10 +53,16 @@ function TopBar(props) {
   return (
     <div className="top-bar flex f-vcenter f-space-between">
       <div className="top-left-bar flex f-vcenter f-space-between">
-        <img className="logo" src={logo} alt="Logo" />
+        <div className="logo-box flex f-vcenter">
+          <img className="logo" src={logo} alt="Logo" />
+        </div>
         <div className="flex tag-bar">
           {props.allImage.map((item) => (
-            <TagBox key={item.id} tagName={item.name} />
+            <TagBox
+              key={item.id}
+              choose={item.id === props.currentImage}
+              tagName={item.name}
+            />
           ))}
         </div>
       </div>
@@ -54,12 +71,27 @@ function TopBar(props) {
           <img
             className="i-25 main-button"
             src={exportIcon}
-            onClick={() => setShowExportModal(true)}
+            onClick={() => props.setShowExportModal(true)}
             alt="Export button"
           />
         </Tooltip>
         <Tooltip title="Open upload image panel" placement="bottom">
-          <img className="i-25 main-button" src={upload} alt="Upload button" />
+          <img
+            className="i-25 main-button"
+            src={upload}
+            onClick={() => {
+              props.setShowUpload(true);
+            }}
+            alt="Upload button"
+          />
+        </Tooltip>
+        <Tooltip title="Open full screen preview" placement="bottom">
+          <img
+            className="i-25 main-button"
+            src={fullScreen}
+            onClick={() => props.setShowFullScreen(true)}
+            alt="Open full screen preview"
+          />
         </Tooltip>
         <Tooltip title="Change preview mode" placement="bottom">
           <img
@@ -72,23 +104,10 @@ function TopBar(props) {
           <img
             className="i-25 main-button"
             src={setting}
-            onClick={() => setShowSettingModal(true)}
+            onClick={() => props.setShowSettingModal(true)}
             alt="Setting button"
           />
         </Tooltip>
-        <ExportModal
-          showExportModal={showExportModal}
-          setShowExportModal={setShowExportModal}
-          imageWidth={0}
-          imageHeight={0}
-          imageName={props.allImage.length > 0 ? props.allImage[0].name : ""}
-          imageUnit={props.allImage.length > 0 ? props.allImage[0].unit : ""}
-          imageURL={props.allImage.length > 0 ? props.allImage[0].url : ""}
-        />
-        <SettingModal
-          showSettingModal={showSettingModal}
-          setShowSettingModal={setShowSettingModal}
-        />
       </div>
     </div>
   );

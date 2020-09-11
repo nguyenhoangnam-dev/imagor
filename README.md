@@ -1,68 +1,86 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# IMAGOR
 
-## Available Scripts
+This is pet image processing editor project use React.
 
-In the project directory, you can run:
+![Upload screen](uploadScreen.jpg)
+_Upload screen in first time load webapp_
 
-### `yarn start`
+![Main scree](mainScreen.jpg)
+_The screen that use almost all the time_
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Feature
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Some features still in progress but already appear in this version.
 
-### `yarn test`
+### Upload panel
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+As the text mention in image, user can click the white box or drag file from device.<br />
+Note1: Only **one** file each time drag to upload file.<br />
+Note2: Currently project only support **image/jpeg**, **image/png**, **image/webp**.
 
-### `yarn build`
+![Upload panel](uploadPanel.jpg)
+_Upload box for click or drag to upload file_
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Sometime you may cancel upload file. Fortunately, current version of project can detect this event so that user can upload again without reload page.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+### Topbar
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This bar will demonstrate all image file name separate by tag. <br />
+On the left, this icon is temporary logo for project and may change in the future. Next to it is list of image name and hidden close icon which will appear when hover. On the right are show export menu button, show upload panel button, turn on full screen mode button, change view button and finally is open setting menu button.
 
-### `yarn eject`
+Currently, only upload button and full screen button is working, other are still in progress.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+![Topbar](topbar.jpg)
+_Topbar for change image and open menu_
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Almost all button on the right have hotkey which is talk in [Hotkey section](#Hotkey).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Toolbar
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Main screen
 
-## Learn More
+This is a place where image will show in first time and automatically change when slider change.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+![Main screen](mainArea.jpg)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Option bar
 
-### Code Splitting
+This is the place use can change filter of image use slider or input filter's value.<br />
+On the top of option bar is Histogram of image which is create by image-js library. At the middle is slider box with name of slider, box to input value and slider to change value. Finally, the button in the bottom use for reset all filter.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+![Option bar](optionBar.jpg)
 
-### Analyzing the Bundle Size
+Note1: This bar can resize when hover the area in the middle of main screen and option bar.<br />
+Note2: This bar has a hotkey to toggle open or close which present in [Hotkey section](#Hotkey).
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+### Minimal option bar
 
-### Making a Progressive Web App
+This is the place to show icon of option bar with can toggle to open or close.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+![Minimal option bar](minimalBar.jpg)
 
-### Advanced Configuration
+### Status bar
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+This bar show information of image.<br />
+On the left of bar is progress bar which is not working correctly. Next to it is basic information such as image type, image size, image dimension, image model, number of channels and bit depth. On the right whill show exif information if image has.
 
-### Deployment
+![Status bar](statusBar.jpg)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+Note1: Model of image is always RGB because browser automatically change upload image to RGB.<br />
+Note2: Bit depth is the sum of all bit for all channels.<br />
+Note3: Bit depth and number of channels may work wrong base on each browser.
 
-### `yarn build` fails to minify
+## Hotkey
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+- **Ctrl + b**: Toggle option bar.
+- **Ctrl + shift + f**: Show image in full screen mode.
+- **Ctrl + shift + e**: Show export menu.
+- **Alt + s**: Show setting menu.
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)

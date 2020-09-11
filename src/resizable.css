@@ -11,7 +11,7 @@
 
 .react-resizable-handle-w,
 .react-resizable-handle-e {
-  cursor: ew-resize;
+  cursor: col-resize;
 }
 
 .react-resizable-handle-w {

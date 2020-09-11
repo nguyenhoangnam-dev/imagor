@@ -81,6 +81,9 @@ function RenderImage(props) {
     setImageWidth(tempImageWidth);
     setImageHeight(tempImageHeight);
 
+    props.allImage[props.currentImage].width = tempImageWidth;
+    props.allImage[props.currentImage].height = tempImageHeight;
+
     props.setImageWidth(tempImageWidth);
     props.setImageHeight(tempImageHeight);
 

@@ -24,3 +24,7 @@ html {
 img {
   display: block;
 }
+
+h1 {
+  padding: 0 !important;
+}
