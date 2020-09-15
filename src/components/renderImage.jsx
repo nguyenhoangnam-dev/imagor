@@ -9,14 +9,14 @@ function RenderImage(props) {
   const imageRef = useRef(null);
 
   const tempImage = imageRef.current;
-  const resetFilter =
-    "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)";
+  //const resetFilter =
+  //  "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)";
 
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
   const [loadImage, setLoadImage] = useState(false);
   const [imageURL, setImageURL] = useState("");
-  const [imageFilter, setImageFilter] = useState(resetFilter);
+  //const [imageFilter, setImageFilter] = useState(resetFilter);
 
   useEffect(() => {
     const current = props.currentImage;
@@ -47,27 +47,27 @@ function RenderImage(props) {
       }, imageType);
     };
 
-    const setFilter = (context, filerType, value) => {
-      let filter = imageFilter;
+    //const setFilter = (context, filerType, value) => {
+      //let filter = imageFilter;
 
-      if (filerType === "blur") {
-        value += "px";
-      } else {
-        value += "%";
-      }
+     // if (filerType === "blur") {
+       // value += "px";
+      //} else {
+        //value += "%";
+      //}
 
-      let preFilter;
+      //let preFilter;
 
-      if (filerType === "reset") {
-        preFilter = resetFilter;
-      } else {
-        let pattern = new RegExp(`${filerType}\\(\\d+(%|px)\\)`);
-        preFilter = filter.replace(pattern, `${filerType}(${value})`);
-      }
+      //if (filerType === "reset") {
+        //preFilter = resetFilter;
+      //} else {
+        //let pattern = new RegExp(`${filerType}\\(\\d+(%|px)\\)`);
+        //preFilter = filter.replace(pattern, `${filerType}(${value})`);
+      //}
 
-      context.filter = preFilter;
-      setImageFilter(preFilter);
-    };
+      //context.filter = preFilter;
+      //setImageFilter(preFilter);
+    ///};
 
     if (loadImage && (props.doneFilter || props.resetFilter)) {
       canvas.width = imageWidth;

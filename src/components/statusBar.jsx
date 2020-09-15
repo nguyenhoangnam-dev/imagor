@@ -24,7 +24,7 @@ const ProgressFilter = withStyles((theme) => ({
 }))(LinearProgress);
 
 function StatusBar(props) {
-  const [progressFilterValue, setProgressFilterValue] = useState(0);
+  const [progressFilterValue] = useState(0);
   const [colorModel, setColorModel] = useState(null);
   const [channels, setChannels] = useState(null);
   const [bitDepth, setBitDepth] = useState(null);
