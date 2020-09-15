@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "../components.css";
 
+import { roundBytes } from "../helper";
+
 import { withStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Tooltip from "@material-ui/core/Tooltip";
-
-const { Image } = require("image-js");
 
 const ProgressFilter = withStyles((theme) => ({
   root: {
@@ -38,73 +38,67 @@ function StatusBar(props) {
   const [maxAperture, setMaxAperture] = useState(null);
   const [meteringMode, setMeteringMode] = useState(null);
 
-  useEffect(() => {
-    if (props.imageBlob && props.loadImage) {
-      props.imageBlob.arrayBuffer().then((buffer) => {
-        Image.load(buffer).then((image) => {
-          setColorModel(image.colorModel);
-          setChannels(image.channels);
-          setBitDepth(image.bitDepth * image.channels);
-
-          props.setImageHistogram(
-            image.getHistograms({
-              maxSlots: 256,
-              useAlpha: false,
-            })
-          );
-
-          props.allImage[props.currentImage].colorModel = image.colorModel;
-          props.allImage[props.currentImage].channels = image.channels;
-          props.allImage[props.currentImage].bitDepth =
-            image.bitDepth * image.channels;
-          props.allImage[props.currentImage].histograms = image.getHistograms({
-            maxSlots: 256,
-            useAlpha: false,
-          });
-
-          props.setLoadHistogram(true);
-          props.setLoadImage(false);
-        });
-      });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadImage]);
+  const [imageType, setImageType] = useState(null);
+  const [imageSize, setImageSize] = useState(null);
+  const [imageUnit, setImageUnit] = useState(null);
+  const [imageWidth, setImageWidth] = useState(null);
+  const [imageHeight, setImageHeight] = useState(null);
 
   // Progress bar animation
+  // useEffect(() => {
+  //   const progressAnimation = setInterval(function () {
+  //     setProgressFilterValue((oldProgress) => {
+  //       if (oldProgress === 100 || !props.changeFilter) {
+  //         clearInterval(progressAnimation);
+  //         return 0;
+  //       }
+
+  //       return oldProgress + 1;
+  //     });
+
+  //     return () => {
+  //       clearInterval(progressAnimation);
+  //     };
+  //   }, 40);
+
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.changeFilter]);
+
   useEffect(() => {
-    const progressAnimation = setInterval(function () {
-      setProgressFilterValue((oldProgress) => {
-        if (oldProgress === 100 || !props.changeFilter) {
-          clearInterval(progressAnimation);
-          return 0;
-        }
+    if (props.currentImage >= 0 && props.loadHistogram) {
+      const current = props.currentImage;
 
-        return oldProgress + 1;
-      });
-
-      return () => {
-        clearInterval(progressAnimation);
-      };
-    }, 40);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.changeFilter]);
-
-  // Set EXIF information to status bar.
-  useEffect(() => {
-    if (props.loadInformation) {
-      setMaker(props.allImage[0].maker);
-      setModel(props.allImage[0].model);
-      setFStop(props.allImage[0].fStop);
-      setExposureTime(props.allImage[0].exposureTime);
-      setISO(props.allImage[0].ISO);
-      setExposureBias(props.allImage[0].exposureBias);
-      setFocalLength(props.allImage[0].focalLength);
-      setMaxAperture(props.allImage[0].maxAperture);
-      setMeteringMode(props.allImage[0].meteringMode);
+      setColorModel(props.allImage[current].colorModel);
+      setChannels(props.allImage[current].channels);
+      setBitDepth(props.allImage[current].bitDepth);
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadHistogram]);
+
+  useEffect(() => {
+    if (props.currentImage >= 0 && props.loadInformation) {
+      const current = props.currentImage;
+      const allImage = props.allImage[current];
+
+      setImageType(allImage.type);
+      setImageSize(roundBytes(allImage.size));
+      setImageUnit(allImage.unit);
+      setImageWidth(allImage.width);
+      setImageHeight(allImage.height);
+
+      setMaker(allImage.maker);
+      setModel(allImage.model);
+      setFStop(allImage.fStop);
+      setExposureTime(allImage.exposureTime);
+      setISO(allImage.ISO);
+      setExposureBias(allImage.exposureBias);
+      setFocalLength(allImage.focalLength);
+      setMaxAperture(allImage.maxAperture);
+      setMeteringMode(allImage.meteringMode);
+
+      props.setLoadInformation(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadInformation]);
 
@@ -115,20 +109,18 @@ function StatusBar(props) {
           <ProgressFilter variant="determinate" value={progressFilterValue} />
         </Tooltip>
         <Tooltip title="Image type" placement="top">
-          <p>{props.imageType}</p>
+          <p>{imageType}</p>
         </Tooltip>
         <Tooltip title="Image size" placement="top">
-          <p>{props.imageSize}</p>
+          <p>{imageSize}</p>
         </Tooltip>
         <Tooltip title="Image dimension" placement="top">
           <p>
-            {props.imageWidth && props.imageHeight
-              ? props.imageWidth + " x " + props.imageHeight
-              : ""}
+            {imageWidth && imageHeight ? imageWidth + " x " + imageHeight : ""}
           </p>
         </Tooltip>
         <Tooltip title="Image unit" placement="top">
-          <p>{props.imageUnit}</p>
+          <p>{imageUnit}</p>
         </Tooltip>
         <Tooltip title="Image colour model" placement="top">
           <p>{colorModel}</p>
@@ -141,33 +133,77 @@ function StatusBar(props) {
         </Tooltip>
       </div>
       <div className="status-bar-right flex f-hright f-vcenter">
-        <Tooltip title="Camera maker" placement="top">
-          <p>{maker}</p>
-        </Tooltip>
-        <Tooltip title="Camera model" placement="top">
-          <p>{model}</p>
-        </Tooltip>
-        <Tooltip title="F-stop" placement="top">
-          <p>{fStop}</p>
-        </Tooltip>
-        <Tooltip title="Exposure time" placement="top">
-          <p>{exposureTime}</p>
-        </Tooltip>
-        <Tooltip title="ISO speed" placement="top">
-          <p>{ISO}</p>
-        </Tooltip>
-        <Tooltip title="Exposure bias" placement="top">
-          <p>{exposureBias}</p>
-        </Tooltip>
-        <Tooltip title="Focal length" placement="top">
-          <p>{focalLength}</p>
-        </Tooltip>
-        <Tooltip title="Max aperture" placement="top">
-          <p>{maxAperture}</p>
-        </Tooltip>
-        <Tooltip title="Metering mode" placement="top">
-          <p>{meteringMode}</p>
-        </Tooltip>
+        {maker ? (
+          <Tooltip title="Camera maker" placement="top">
+            <p>{maker}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {model ? (
+          <Tooltip title="Camera model" placement="top">
+            <p>{model}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {fStop ? (
+          <Tooltip title="F-stop" placement="top">
+            <p>{fStop}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {exposureTime ? (
+          <Tooltip title="Exposure time" placement="top">
+            <p>{exposureTime}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {ISO ? (
+          <Tooltip title="ISO speed" placement="top">
+            <p>{ISO}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {exposureBias ? (
+          <Tooltip title="Exposure bias" placement="top">
+            <p>{exposureBias}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {focalLength ? (
+          <Tooltip title="Focal length" placement="top">
+            <p>{focalLength}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {maxAperture ? (
+          <Tooltip title="Max aperture" placement="top">
+            <p>{maxAperture}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
+
+        {meteringMode ? (
+          <Tooltip title="Metering mode" placement="top">
+            <p>{meteringMode}</p>
+          </Tooltip>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

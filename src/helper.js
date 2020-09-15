@@ -20,3 +20,6 @@ export const checkFirstBytes = (bytes, mime) => {
   }
   return true;
 };
+
+export const getFilter = (filters) =>
+  `contrast(${filters.Contrast}%) brightness(${filters.Brightness}%) blur(${filters.Blur}px) opacity(${filters.Opacity}%) saturate(${filters.Saturate}%) grayscale(${filters.Grayscale}%) invert(${filters.Invert}%) sepia(${filters.Sepia}%)`;

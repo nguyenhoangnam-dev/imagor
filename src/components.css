@@ -66,10 +66,12 @@
 
 .invisible {
   visibility: hidden;
+  transition: visibility 0.2s;
 }
 
 .visible {
   visibility: visible;
+  transition: visibility 0.4s;
 }
 
 .w-100 {
@@ -123,40 +125,8 @@
   cursor: pointer;
 }
 
-/* Upload Panel */
-
-.upload-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-}
-
-.upload-box {
-  flex-direction: column;
-  width: 60%;
-  height: 60%;
-  border: 8px dashed #b3b3b3;
-  border-radius: 20px;
-  background-color: white;
-}
-
-#upload-icon {
-  width: 20%;
-  fill: #b3b3b3;
-}
-
-.upload-select {
-  border-color: var(--color-4);
-}
-
-.upload-select p {
-  color: var(--color-4) !important;
-}
-
-.upload-select svg {
-  fill: var(--color-4) !important;
+.inactive {
+  filter: gray; /* IE6-9 */
+  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
 }

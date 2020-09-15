@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SliderFilter from "./slider";
 import { ResizableBox } from "react-resizable";
+// import wwHistogram from "../worker/histogram";
 
 import "../resizable.css";
 import "../components.css";
@@ -10,6 +11,12 @@ import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import { AreaChart, Area, XAxis, YAxis } from "recharts";
+
+const { Image } = require("image-js");
+
+const getPathFromPublic = (path) => `${process.env.PUBLIC_URL}/${path}`;
+const wwHistogramPath = getPathFromPublic("histogram.js");
+const wwHistogram = new Worker(wwHistogramPath);
 
 const ThemeButton = withStyles({
   root: {
@@ -54,26 +61,60 @@ function OptionSideBar(props) {
   }, []);
 
   useEffect(() => {
-    if (props.loadHistogram) {
-      let histogram = props.imageHistogram;
+    const current = props.currentImage;
 
-      let arrayArrayToArrayObject = [];
+    if (current >= 0 && props.loadHistogram) {
+      if (props.allImage[current].changeFilter) {
+        wwHistogram.postMessage(props.allImage[current].histograms);
 
-      for (let i = 0; i < 256; i++) {
-        arrayArrayToArrayObject[i] = {
-          name: i,
-          red: histogram[0][i],
-          green: histogram[1][i],
-          blue: histogram[2][i],
+        wwHistogram.onmessage = function (event) {
+          props.allImage[current].loadMeta = true;
+          props.allImage[current].histogramObject = event.data;
+          setDataHistogram(event.data);
+          props.setLoadHistogram(false);
         };
+
+        props.allImage[current].changeFilter = false;
       }
 
-      setDataHistogram(arrayArrayToArrayObject);
-      props.setLoadHistogram(false);
+      if (
+        current >= props.countImage - 1 &&
+        !props.allImage[current].loadMeta
+      ) {
+        wwHistogram.postMessage(props.allImage[current].histograms);
+
+        wwHistogram.onmessage = function (event) {
+          props.allImage[current].loadMeta = true;
+          props.allImage[current].histogramObject = event.data;
+          setDataHistogram(event.data);
+          props.setLoadHistogram(false);
+        };
+      } else {
+        setDataHistogram(props.allImage[current].histogramObject);
+        props.setLoadHistogram(false);
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadHistogram]);
+
+  useEffect(() => {
+    if (props.loadFilterURL) {
+      const current = props.currentImage;
+
+      Image.load(props.allImage[current].filterURL).then((image) => {
+        props.allImage[current].changeFilter = true;
+        props.allImage[current].histograms = image.getHistograms({
+          maxSlots: 256,
+          useAlpha: false,
+        });
+
+        props.setLoadHistogram(true);
+      });
+      props.setLoadFilterURL(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadFilterURL]);
 
   useEffect(() => {
     if (!props.loadHistogram) {
@@ -142,10 +183,13 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Contrast"}
           defaultValue={100}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("contrast", value);
+            // props.getFilter("contrast", value);
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -156,9 +200,14 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Brightness"}
           defaultValue={100}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("brightness", value);
+            // props.getFilter("brightness", value);
+            // props.allImage[props.currentImage].cssFilter.brightness =
+            //   props.currentImage >= 0 ? value : 100;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -170,9 +219,14 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Opacity"}
           defaultValue={100}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("opacity", value);
+            // props.getFilter("opacity", value);
+            // props.allImage[props.currentImage].cssFilter.opacity =
+            //   props.currentImage >= 0 ? value : 100;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -185,10 +239,15 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Saturate"}
           defaultValue={100}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("saturate", value);
+            // props.getFilter("saturate", value);
+            // props.allImage[props.currentImage].cssFilter.saturate =
+            //   props.currentImage >= 0 ? value : 100;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -199,10 +258,15 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Grayscale"}
           defaultValue={0}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("grayscale", value);
+            // props.getFilter("grayscale", value);
+            // props.allImage[props.currentImage].cssFilter.grayscale =
+            //   props.currentImage >= 0 ? value : 0;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -213,10 +277,15 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Invert"}
           defaultValue={0}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("invert", value);
+            // props.getFilter("invert", value);
+            // props.allImage[props.currentImage].cssFilter.invert =
+            //   props.currentImage >= 0 ? value : 0;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -227,10 +296,15 @@ function OptionSideBar(props) {
           className="mt-15"
           filterName={"Sepia"}
           defaultValue={0}
+          currentImage={props.currentImage}
+          allImage={props.allImage}
+          setDoneFilter={props.setDoneFilter}
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            props.getFilter("sepia", value);
+            // props.getFilter("sepia", value);
+            // props.allImage[props.currentImage].cssFilter.sepia =
+            //   props.currentImage >= 0 ? value : 0;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
@@ -264,6 +338,8 @@ function OptionSideBar(props) {
           <ThemeButton
             onClick={() => {
               setResetValue(true);
+              props.allImage[props.currentImage].cssFilter.reset = true;
+              props.setChangeFilter(true);
               // setChangeFilter(false);
               props.setResetFilter(true);
             }}

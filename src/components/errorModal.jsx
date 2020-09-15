@@ -4,7 +4,7 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 
-import close from "../cancel.svg";
+import { ReactComponent as Close } from "../img/cancel.svg";
 
 import "../components.css";
 
@@ -64,14 +64,13 @@ function ErrorModal(props) {
         <div className="error-box">
           <div className="error-box-header flex f-space-between f-vcenter">
             <h1>{props.errorTitle}</h1>
-            <img
+            <Close
               className="close-tag c-pointer"
-              src={close}
-              alt="Close tag"
               onClick={() => {
                 setOpen(false);
                 props.setShowErrorModal(false);
               }}
+              style={{ fill: "white" }}
             />
           </div>
           <div className="error-box-content">

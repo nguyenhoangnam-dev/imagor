@@ -1,5 +1,5 @@
 import React from "react";
-import filterLogo from "../adjust.svg";
+import { ReactComponent as FilterLogo } from "../img/adjust.svg";
 import "../components.css";
 import Tooltip from "@material-ui/core/Tooltip";
 
@@ -14,7 +14,7 @@ function OptionMinimal(props) {
           }
           onClick={() => props.setShowOption(!props.showOption)}
         >
-          <img className="minimal-icon" src={filterLogo} alt="Filter logo" />
+          <FilterLogo className="minimal-icon" />
         </div>
       </Tooltip>
     </div>

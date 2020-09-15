@@ -1,13 +1,18 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import "../components.css";
-
-const { EXIF } = require("exif-js");
+import { getFilter } from "../helper";
 
 function MainScreen(props) {
   // const [isDown, setIsDown] = useState(false);
   // const [startAxisY, setStartAxisY] = useState(0);
   // const [scrollTop, setScrollTop] = useState(0);
+  const [imageURL, setImageURL] = useState(null);
+  const [imageOrient, setImageOrient] = useState(null);
+  const [showImage, setShowImage] = useState(false);
+  const [filterStyle, setFilterStyle] = useState(
+    "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)"
+  );
 
   const scrollRef = useRef(null);
   // const scrollBar = scrollRef.current;
@@ -15,37 +20,57 @@ function MainScreen(props) {
   const screenRef = useRef(null);
   const screen = screenRef.current;
 
-  // Get EXIF information to status bar.
   useEffect(() => {
-    if (props.imageURL && props.loadImage) {
-      EXIF.getData(screen, function () {
-        const allMetaData = EXIF.getAllTags(this);
+    setShowImage(false);
 
-        if (Object.entries(allMetaData).length === 0) {
-          props.setLoadInformation(false);
-        } else {
-          props.allImage[0].maker = allMetaData.Make;
-          props.allImage[0].model = allMetaData.Model;
-          props.allImage[0].fStop =
-            allMetaData.FNumber.numerator / allMetaData.FNumber.denominator;
-          props.allImage[0].exposureTime =
-            allMetaData.ExposureTime.numerator +
-            "/" +
-            allMetaData.ExposureTime.denominator;
-          props.allImage[0].ISO = "ISO-" + allMetaData.ISOSpeedRatings;
-          props.allImage[0].exposureBias = allMetaData.ExposureBias + " step";
-          props.allImage[0].focalLength = allMetaData.FocalLength + " mm";
-          props.allImage[0].maxAperture =
-            allMetaData.MaxApertureValue.numerator /
-            allMetaData.MaxApertureValue.denominator;
-          props.allImage[0].meteringMode = allMetaData.MeteringMode;
-          props.setLoadInformation(true);
-        }
-      });
+    const current = props.currentImage;
+
+    if (current >= 0) {
+      setImageURL(props.allImage[current].url);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadImage]);
+  }, [props.currentImage]);
+
+  useEffect(() => {
+    if (props.loadOrient) {
+      const current = props.currentImage;
+
+      setImageOrient(props.allImage[current].orient);
+      setShowImage(true);
+
+      props.setLoadOrient(false);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadOrient]);
+
+  // useEffect(() => {
+  //   if (props.loadFilterURL) {
+  //     const current = props.currentImage;
+
+  //     setImageURL(props.allImage[current].url);
+  //     props.setLoadFilterURL(false);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.loadFilterURL]);
+
+  useEffect(() => {
+    if (props.currentImage >= 0 && props.changeFilter) {
+      const current = props.currentImage;
+      if (props.allImage[current].cssFilter.reset) {
+        setFilterStyle("unset");
+
+        props.allImage[current].cssFilter.reset = false;
+      } else {
+        setFilterStyle(getFilter(props.allImage[current].cssFilter));
+      }
+
+      props.setChangeFilter(false);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.changeFilter]);
 
   // Open full screen mode and check browser support.
   useEffect(() => {
@@ -95,8 +120,7 @@ function MainScreen(props) {
     <div
       className={
         "main-screen flex f-hcenter f-vcenter " +
-        (props.showOption ? "has-option-layout " : "") +
-        (props.loadURL ? "visible" : "invisible ")
+        (props.showOption ? "has-option-layout " : "")
       }
     >
       <Scrollbars
@@ -108,15 +132,19 @@ function MainScreen(props) {
         // onMouseUp={() => setIsDown(false)}
         // onMouseMove={dragMove}
       >
-        <img
-          ref={screenRef}
-          src={props.imageURL}
-          alt="Will label later"
-          className={
-            "main-image-preview " +
-            (props.landscape === "vertical" ? "w-100 " : "h-100 ")
-          }
-        />
+        <div className="flex f-hcenter f-vcenter w-100 h-100">
+          <img
+            ref={screenRef}
+            src={imageURL}
+            alt="Will label later"
+            style={{ filter: filterStyle }}
+            className={
+              "main-image-preview " +
+              (showImage ? "visible " : "invisible ") +
+              (imageOrient === "landscape" ? "w-100 " : "h-100 ")
+            }
+          />
+        </div>
       </Scrollbars>
     </div>
   );

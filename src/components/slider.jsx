@@ -48,6 +48,9 @@ function Slider(props) {
         onChange={(event, newValue) => {
           props.setFilterValue(newValue);
         }}
+        onChangeCommitted={(event, value) => {
+          props.setDoneFilter(true);
+        }}
         value={props.filterValue}
       />
     </div>
@@ -113,6 +116,12 @@ function SliderFilter(props) {
     // if (!props.resetValue) {
     //   props.setChangeFilter(true);
     // }
+    const current = props.currentImage;
+    if (current >= 0) {
+      props.allImage[props.currentImage].cssFilter[
+        props.filterName
+      ] = filterValue;
+    }
     props.getValue(filterValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValue]);
@@ -147,6 +156,7 @@ function SliderFilter(props) {
         disabled={props.disabled || props.disable}
         filterValue={filterValue}
         setFilterValue={setFilterValue}
+        setDoneFilter={props.setDoneFilter}
       />
     </div>
   );

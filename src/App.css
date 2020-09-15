@@ -25,7 +25,6 @@ body {
 
 .main-button {
   margin-left: 10px;
-  cursor: pointer;
 }
 
 .logo {
@@ -113,7 +112,7 @@ body {
 .main-image-preview {
   position: absolute;
   top: 0;
-  left: 0;
+  /* left: 0; */
 }
 
 /* Option sidebar */
@@ -145,7 +144,7 @@ body {
   border-bottom: 2px solid var(--color-4);
 }
 
-/* Option icon bar */
+/* Minimal option bar */
 
 .option-icon-bar {
   background-color: var(--color-2);
@@ -205,6 +204,42 @@ body {
   -moz-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
   transition: box-shadow 0.3s;
+}
+
+.upload-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.upload-box {
+  flex-direction: column;
+  width: 60%;
+  height: 60%;
+  border: 8px dashed #b3b3b3;
+  border-radius: 20px;
+  background-color: white;
+}
+
+#upload-icon {
+  width: 20%;
+  fill: #b3b3b3;
+}
+
+.upload-select {
+  border-color: var(--color-4);
+}
+
+.upload-select p {
+  color: var(--color-4) !important;
+}
+
+.upload-select svg {
+  fill: var(--color-4) !important;
 }
 
 /* Export modal */
