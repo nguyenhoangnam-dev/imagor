@@ -249,10 +249,6 @@ body {
   padding: 10px;
 }
 
-.export-preview {
-  width: 100px;
-}
-
 .filter-box {
   color: black;
   padding-top: 20px;
@@ -260,6 +256,55 @@ body {
   margin-left: 20px;
   margin-right: 20px;
 }
+
+.modal-box {
+  background-color: var(--color-1);
+  border-radius: 4px;
+  width: 500px;
+}
+
+.modal-box h1 {
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+  padding-bottom: 25px;
+}
+
+.modal-box-header {
+  background-color: var(--color-3);
+  padding: 25px;
+  border-radius: 4px 4px 0 0;
+}
+
+.modal-box-content {
+  padding: 25px;
+}
+
+.modal-box-button {
+  padding: 25px;
+}
+
+/* .input-filter-percent {
+  width: 30px;
+  text-align: end;
+  border: none;
+  font-size: 15px;
+  padding-right: 3px;
+  cursor: pointer;
+  box-sizing: content-box;
+  height: 15px;
+}
+
+.input-filter-percent:disabled {
+  background-color: white;
+  color: #a7a7a7;
+}
+
+.input-filter-percent:focus {
+  border: none;
+  outline: none;
+  border-bottom: 2px solid var(--color-4);
+} */
 
 /* Error modal */
 

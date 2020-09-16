@@ -8,7 +8,6 @@ import setting from "../img/maintenance.svg";
 import { ReactComponent as Close } from "../img/cancel.svg";
 import fullScreen from "../img/resize.svg";
 
-import "../components.css";
 import Tooltip from "@material-ui/core/Tooltip";
 
 function TagBox(props) {

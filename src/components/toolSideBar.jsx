@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import "../components.css";
 
 class ToolSideBar extends Component {
   state = {};

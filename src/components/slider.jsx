@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import SliderMaterial from "@material-ui/core/Slider";
 import Tooltip from "@material-ui/core/Tooltip";
-import "../components.css";
 
 const useStyles = makeStyles({
   root: {
     width: "100%",
   },
-});
-
-const SliderStyle = withStyles({
-  root: {
+  slider: {
     color: "var(--color-4)",
     height: 2,
   },
@@ -25,14 +21,13 @@ const SliderStyle = withStyles({
       backgroundColor: "var(--color-3)",
     },
   },
-  active: {},
   track: {
     // backgroundColor: "#3282b8",
   },
   rail: {
     backgroundColor: "var(--color-3)",
   },
-})(SliderMaterial);
+});
 
 function Slider(props) {
   const classes = useStyles();
@@ -40,7 +35,13 @@ function Slider(props) {
 
   return (
     <div className={classes.root}>
-      <SliderStyle
+      <SliderMaterial
+        className={classes.slider}
+        classes={{
+          thumb: classes.thumb,
+          track: classes.track,
+          rail: classes.rail,
+        }}
         defaultValue={defaultValue}
         disabled={props.disabled || props.disable}
         aria-labelledby="discrete-slider-custom"

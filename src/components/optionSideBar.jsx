@@ -4,9 +4,8 @@ import { ResizableBox } from "react-resizable";
 // import wwHistogram from "../worker/histogram";
 
 import "../resizable.css";
-import "../components.css";
 
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 
@@ -18,15 +17,14 @@ const getPathFromPublic = (path) => `${process.env.PUBLIC_URL}/${path}`;
 const wwHistogramPath = getPathFromPublic("histogram.js");
 const wwHistogram = new Worker(wwHistogramPath);
 
-const ThemeButton = withStyles({
-  root: {
+const useStyles = makeStyles((theme) => ({
+  button: {
     boxShadow: "none",
     textTransform: "none",
     fontSize: 15,
     lineHeight: 1.5,
     color: "black",
     backgroundColor: "var(--color-2)",
-    borderColor: "var(--color-3)",
     marginLeft: 10,
     transition: "background-color .4s",
     "&:hover": {
@@ -34,14 +32,16 @@ const ThemeButton = withStyles({
       transition: "background-color .3s",
     },
   },
-})(Button);
+}));
 
 function OptionSideBar(props) {
+  const classes = useStyles();
   const [resetValue, setResetValue] = useState(false);
   const [width] = useState(300);
   const [height, setHeight] = useState(0);
 
   const [blurValue, setBlurValue] = useState(0);
+
   const [dataHistogram, setDataHistogram] = useState([{}]);
   // const [changeFilter, setChangeFilter] = useState(false);
 
@@ -81,6 +81,7 @@ function OptionSideBar(props) {
         current >= props.countImage - 1 &&
         !props.allImage[current].loadMeta
       ) {
+        console.log(dataHistogram);
         wwHistogram.postMessage(props.allImage[current].histograms);
 
         wwHistogram.onmessage = function (event) {
@@ -116,12 +117,12 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadFilterURL]);
 
-  useEffect(() => {
-    if (!props.loadHistogram) {
-      setDataHistogram([{}]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.currentImage]);
+  // useEffect(() => {
+  //   if (!props.loadHistogram) {
+  //     setDataHistogram(initialHistogram());
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.currentImage]);
 
   // useEffect(() => {
   //   props.setLoadHistogram(false);
@@ -335,7 +336,8 @@ function OptionSideBar(props) {
           className="flex f-hright mt-25"
           style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}
         >
-          <ThemeButton
+          <Button
+            className={classes.button}
             onClick={() => {
               setResetValue(true);
               props.allImage[props.currentImage].cssFilter.reset = true;
@@ -346,7 +348,7 @@ function OptionSideBar(props) {
             disabled={!props.supportFilter}
           >
             Reset
-          </ThemeButton>
+          </Button>
         </div>
       </div>
     </ResizableBox>

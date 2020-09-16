@@ -1,15 +1,28 @@
 import React, { useEffect } from "react";
 
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 
 import { ReactComponent as Close } from "../img/cancel.svg";
+import createGlobalStyle from "styled-components";
 
-import "../components.css";
+const GlobalStyles = createGlobalStyle.div`
+  --color-1: ${(props) => props.color1};
+  --color-2: ${(props) => props.color2};
+  --color-3: ${(props) => props.color3};
+  --color-4: ${(props) => props.color4};
+  --contrast-3: ${(props) => props.contrast3};
+  --text-color: ${(props) => props.textColor};
+`;
 
-const ThemeButton = withStyles({
-  root: {
+const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  button: {
     boxShadow: "none",
     textTransform: "none",
     fontSize: 15,
@@ -25,14 +38,6 @@ const ThemeButton = withStyles({
       backgroundColor: "var(--color-3)",
       transition: "background-color .3s",
     },
-  },
-})(Button);
-
-const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
   },
 }));
 
@@ -61,32 +66,42 @@ function ErrorModal(props) {
         open={open}
         onClose={handleClose}
       >
-        <div className="error-box">
-          <div className="error-box-header flex f-space-between f-vcenter">
-            <h1>{props.errorTitle}</h1>
-            <Close
-              className="close-tag c-pointer"
-              onClick={() => {
-                setOpen(false);
-                props.setShowErrorModal(false);
-              }}
-              style={{ fill: "white" }}
-            />
+        <GlobalStyles
+          color1={props.color1}
+          color2={props.color2}
+          color3={props.color3}
+          color4={props.color4}
+          contrast3={props.contrast3}
+          textColor={props.textColor}
+        >
+          <div className="error-box">
+            <div className="error-box-header flex f-space-between f-vcenter">
+              <h1>{props.errorTitle}</h1>
+              <Close
+                className="close-tag c-pointer"
+                onClick={() => {
+                  setOpen(false);
+                  props.setShowErrorModal(false);
+                }}
+                style={{ fill: "white" }}
+              />
+            </div>
+            <div className="error-box-content">
+              <p>{props.errorMessage}</p>
+            </div>
+            <div className="error-box-button flex f-hright f-vcenter">
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  setOpen(false);
+                  props.setShowErrorModal(false);
+                }}
+              >
+                Close
+              </Button>
+            </div>
           </div>
-          <div className="error-box-content">
-            <p>{props.errorMessage}</p>
-          </div>
-          <div className="error-box-button flex f-hright f-vcenter">
-            <ThemeButton
-              onClick={() => {
-                setOpen(false);
-                props.setShowErrorModal(false);
-              }}
-            >
-              Close
-            </ThemeButton>
-          </div>
-        </div>
+        </GlobalStyles>
       </Modal>
     </div>
   );

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import "../components.css";
 
 import { roundBytes } from "../helper";
 
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 
-const ProgressFilter = withStyles((theme) => ({
-  root: {
+const useStyles = makeStyles((theme) => ({
+  progress: {
     height: 14,
     borderRadius: 8,
     width: 200,
@@ -21,9 +20,11 @@ const ProgressFilter = withStyles((theme) => ({
     borderRadius: 5,
     backgroundColor: "#3282b8",
   },
-}))(LinearProgress);
+}));
 
 function StatusBar(props) {
+  const classes = useStyles();
+
   const [progressFilterValue] = useState(0);
   const [colorModel, setColorModel] = useState(null);
   const [channels, setChannels] = useState(null);
@@ -106,7 +107,15 @@ function StatusBar(props) {
     <div className="status-bar flex f-vcenter f-space-between">
       <div className="flex f-hleft f-vcenter">
         <Tooltip title="Progress bar" placement="top">
-          <ProgressFilter variant="determinate" value={progressFilterValue} />
+          <LinearProgress
+            className={classes.progress}
+            classes={{
+              colorPrimary: classes.colorPrimary,
+              bar: classes.bar,
+            }}
+            variant="determinate"
+            value={progressFilterValue}
+          />
         </Tooltip>
         <Tooltip title="Image type" placement="top">
           <p>{imageType}</p>

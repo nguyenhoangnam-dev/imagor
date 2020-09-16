@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { imagePattern, MIME } from "../global";
 import { checkFirstBytes, roundBytes } from "../helper";
 
-import "../components.css";
-
 function UploadScreen(props) {
   const [active, setActive] = useState(false);
   const [disable, setDisable] = useState(false);

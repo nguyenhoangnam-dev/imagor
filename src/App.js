@@ -65,15 +65,16 @@ function App() {
   const [loadHistogram, setLoadHistogram] = useState(false);
   const [loadOrient, setLoadOrient] = useState(false);
   const [loadFilterURL, setLoadFilterURL] = useState(false);
+  const [loadExport, setLoadExport] = useState(false);
 
   const [showUnload, setShowUnload] = useState(null);
   const [env, setEnv] = useState(null);
 
   // Theme
-  const [color1] = useState("#f4eeff");
-  const [color2] = useState("#dcd6f7");
-  const [color3] = useState("#a6b1e1");
-  const [color4] = useState("#424874");
+  const [color1, setColor1] = useState("#f4eeff");
+  const [color2, setColor2] = useState("#dcd6f7");
+  const [color3, setColor3] = useState("#a6b1e1");
+  const [color4, setColor4] = useState("#424874");
   const [contrast3] = useState("#000000");
   const [textColor] = useState("#000000");
 
@@ -306,6 +307,7 @@ function App() {
           setLoadFilterURL={setLoadFilterURL}
           doneFilter={doneFilter}
           setDoneFilter={setDoneFilter}
+          setLoadExport={setLoadExport}
         />
         <UploadModal
           currentImage={currentImage}
@@ -322,10 +324,18 @@ function App() {
           setShowErrorModal={setShowErrorModal}
           errorMessage={errorMessage}
           errorTitle={errorTitle}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          color4={color4}
+          contrast3={contrast3}
+          textColor={textColor}
         />
         <ExportModal
           currentImage={currentImage}
           allImage={allImage}
+          loadExport={loadExport}
+          setLoadExport={setLoadExport}
           showExportModal={showExportModal}
           setShowExportModal={setShowExportModal}
           imageWidth={0}
@@ -333,10 +343,29 @@ function App() {
           imageName={allImage.length > 0 ? allImage[0].name : ""}
           imageUnit={allImage.length > 0 ? allImage[0].unit : ""}
           imageURL={allImage.length > 0 ? allImage[0].url : ""}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          color4={color4}
+          contrast3={contrast3}
+          textColor={textColor}
+          setColor1={setColor1}
+          setColor2={setColor2}
+          setColor3={setColor3}
+          setColor4={setColor4}
         />
         <SettingModal
           showSettingModal={showSettingModal}
           setShowSettingModal={setShowSettingModal}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          color4={color4}
+          textColor={textColor}
+          setColor1={setColor1}
+          setColor2={setColor2}
+          setColor3={setColor3}
+          setColor4={setColor4}
         />
       </HotKeys>
       {showUnload}

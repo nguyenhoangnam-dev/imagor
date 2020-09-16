@@ -48,25 +48,25 @@ function RenderImage(props) {
     };
 
     //const setFilter = (context, filerType, value) => {
-      //let filter = imageFilter;
+    //let filter = imageFilter;
 
-     // if (filerType === "blur") {
-       // value += "px";
-      //} else {
-        //value += "%";
-      //}
+    // if (filerType === "blur") {
+    // value += "px";
+    //} else {
+    //value += "%";
+    //}
 
-      //let preFilter;
+    //let preFilter;
 
-      //if (filerType === "reset") {
-        //preFilter = resetFilter;
-      //} else {
-        //let pattern = new RegExp(`${filerType}\\(\\d+(%|px)\\)`);
-        //preFilter = filter.replace(pattern, `${filerType}(${value})`);
-      //}
+    //if (filerType === "reset") {
+    //preFilter = resetFilter;
+    //} else {
+    //let pattern = new RegExp(`${filerType}\\(\\d+(%|px)\\)`);
+    //preFilter = filter.replace(pattern, `${filerType}(${value})`);
+    //}
 
-      //context.filter = preFilter;
-      //setImageFilter(preFilter);
+    //context.filter = preFilter;
+    //setImageFilter(preFilter);
     ///};
 
     if (loadImage && (props.doneFilter || props.resetFilter)) {
@@ -122,6 +122,8 @@ function RenderImage(props) {
 
       props.allImage[current].width = tempImageWidth;
       props.allImage[current].height = tempImageHeight;
+
+      props.setLoadExport(true);
 
       // Exif-js store data in image element so eraser every time read new image
       tempImage.exifdata = null;
@@ -202,6 +204,7 @@ function RenderImage(props) {
       }
     } else {
       props.setLoadOrient(true);
+      props.setLoadExport(true);
       props.setLoadInformation(true);
       props.setLoadHistogram(true);
     }

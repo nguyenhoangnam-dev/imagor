@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
-import "../components.css";
 import { getFilter } from "../helper";
 
 function MainScreen(props) {
