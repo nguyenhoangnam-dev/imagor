@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SliderFilter from "./slider";
 import { ResizableBox } from "react-resizable";
-// import wwHistogram from "../worker/histogram";
+import { setFilter } from "../helper";
 
 import "../resizable.css";
 
@@ -45,6 +45,18 @@ function OptionSideBar(props) {
   const [dataHistogram, setDataHistogram] = useState([{}]);
   // const [changeFilter, setChangeFilter] = useState(false);
 
+  const [reloadContrast, setReloadContrast] = useState(false);
+  const [reloadBrightness, setReloadBrightness] = useState(false);
+  const [reloadOpacity, setReloadOpacity] = useState(false);
+  const [reloadSaturate, setReloadSaturate] = useState(false);
+  const [reloadGrayscale, setReloadGrayscale] = useState(false);
+  const [reloadInvert, setReloadInvert] = useState(false);
+  const [reloadSepia, setReloadSepia] = useState(false);
+
+  const [invalidInput, setInvalidInput] = useState(false);
+
+  // const [channel, setChannel] = useState("all");
+
   const submitBlur = (event) => {
     if (event.key === "Enter") {
       props.setChangeFilter(true);
@@ -61,45 +73,6 @@ function OptionSideBar(props) {
   }, []);
 
   useEffect(() => {
-    const current = props.currentImage;
-
-    if (current >= 0 && props.loadHistogram) {
-      if (props.allImage[current].changeFilter) {
-        wwHistogram.postMessage(props.allImage[current].histograms);
-
-        wwHistogram.onmessage = function (event) {
-          props.allImage[current].loadMeta = true;
-          props.allImage[current].histogramObject = event.data;
-          setDataHistogram(event.data);
-          props.setLoadHistogram(false);
-        };
-
-        props.allImage[current].changeFilter = false;
-      }
-
-      if (
-        current >= props.countImage - 1 &&
-        !props.allImage[current].loadMeta
-      ) {
-        console.log(dataHistogram);
-        wwHistogram.postMessage(props.allImage[current].histograms);
-
-        wwHistogram.onmessage = function (event) {
-          props.allImage[current].loadMeta = true;
-          props.allImage[current].histogramObject = event.data;
-          setDataHistogram(event.data);
-          props.setLoadHistogram(false);
-        };
-      } else {
-        setDataHistogram(props.allImage[current].histogramObject);
-        props.setLoadHistogram(false);
-      }
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadHistogram]);
-
-  useEffect(() => {
     if (props.loadFilterURL) {
       const current = props.currentImage;
 
@@ -109,25 +82,171 @@ function OptionSideBar(props) {
           maxSlots: 256,
           useAlpha: false,
         });
-
-        props.setLoadHistogram(true);
       });
       props.setLoadFilterURL(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadFilterURL]);
 
-  // useEffect(() => {
-  //   if (!props.loadHistogram) {
-  //     setDataHistogram(initialHistogram());
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.currentImage]);
+  useEffect(() => {
+    const current = props.currentImage;
 
-  // useEffect(() => {
-  //   props.setLoadHistogram(false);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.currentImage]);
+    if (current >= 0) {
+      if (props.loadThumbnail) {
+        Image.load(props.allImage[current].filterURL)
+          .then((image) => {
+            wwHistogram.postMessage(
+              image.getHistograms({
+                maxSlots: 256,
+                useAlpha: false,
+              })
+            );
+          })
+          .catch((err) => {
+            props.setErrorTitle("Error");
+            props.setErrorMessage(
+              "Your image is too large to find histogram, color model and bit depth."
+            );
+            props.setShowErrorModal(true);
+          });
+
+        props.setLoadNewImage(false);
+        props.setLoadThumbnail(false);
+      } else {
+        setDataHistogram(props.allImage[current].histogramObject);
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadThumbnail, props.currentImage]);
+
+  useEffect(() => {
+    const current = props.currentImage;
+
+    if (props.loadFilterURL) {
+      Image.load(props.allImage[current].filterURL)
+        .then((image) => {
+          wwHistogram.postMessage(
+            image.getHistograms({
+              maxSlots: 256,
+              useAlpha: false,
+            })
+          );
+        })
+        .catch((err) => {
+          props.setErrorTitle("Error");
+          props.setErrorMessage(
+            "Your image is too large to find histogram, color model and bit depth."
+          );
+          props.setShowErrorModal(true);
+        });
+      if (props.allImage[current].changeFilter) {
+        props.allImage[current].changeFilter = false;
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadFilterURL]);
+
+  useEffect(() => {
+    if (props.reloadFilter) {
+      const current = props.currentImage;
+      const filterHistory = props.allImage[current].filterHistory;
+      const filterPosition = props.allImage[current].filterPosition;
+
+      let lastFilter = filterHistory[filterPosition];
+      props.allImage[current].cssFilter = setFilter(lastFilter);
+
+      setReloadContrast(true);
+      setReloadBrightness(true);
+      setReloadOpacity(true);
+      setReloadGrayscale(true);
+      setReloadSaturate(true);
+      setReloadInvert(true);
+      setReloadSepia(true);
+
+      props.setReloadFilter(false);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.reloadFilter]);
+
+  useEffect(() => {
+    const current = props.currentImage;
+    if (props.undoFilter && props.allImage[current].filterPosition >= 0) {
+      props.allImage[current].filterPosition--;
+      let filterPosition = props.allImage[current].filterPosition;
+
+      console.log(filterPosition);
+
+      const filterHistory = props.allImage[current].filterHistory;
+      let currentFilter = filterHistory[filterPosition];
+      props.allImage[current].cssFilter = setFilter(currentFilter);
+
+      setReloadContrast(true);
+      setReloadBrightness(true);
+      setReloadOpacity(true);
+      setReloadGrayscale(true);
+      setReloadSaturate(true);
+      setReloadInvert(true);
+      setReloadSepia(true);
+
+      props.setUndoFilter(false);
+    } else {
+      props.setUndoFilter(false);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.undoFilter]);
+
+  useEffect(() => {
+    const current = props.currentImage;
+    if (
+      props.redoFilter &&
+      props.allImage[current].filterPosition <
+        props.allImage[current].filterHistory.length - 1
+    ) {
+      props.allImage[current].filterPosition++;
+      let filterPosition = props.allImage[current].filterPosition;
+
+      console.log(filterPosition);
+
+      const filterHistory = props.allImage[current].filterHistory;
+      let currentFilter = filterHistory[filterPosition];
+      props.allImage[current].cssFilter = setFilter(currentFilter);
+
+      setReloadContrast(true);
+      setReloadBrightness(true);
+      setReloadOpacity(true);
+      setReloadGrayscale(true);
+      setReloadSaturate(true);
+      setReloadInvert(true);
+      setReloadSepia(true);
+
+      props.setRedoFilter(false);
+    } else {
+      props.setRedoFilter(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.redoFilter]);
+
+  useEffect(() => {
+    if (invalidInput) {
+      props.setErrorTitle("Error");
+      props.setErrorMessage("Invalid percent value.");
+      props.setShowErrorModal(true);
+
+      setInvalidInput(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invalidInput]);
+
+  wwHistogram.onmessage = function (event) {
+    const current = props.currentImage;
+    props.allImage[current].loadMeta = true;
+    props.allImage[current].histogramObject = event.data;
+    setDataHistogram(event.data);
+  };
 
   return (
     <ResizableBox
@@ -162,24 +281,59 @@ function OptionSideBar(props) {
             type="monotone"
             dataKey="red"
             stroke="#ff0000"
-            fillOpacity={0.8}
+            fillOpacity={1}
             fill="#ff0000"
           />
           <Area
             type="monotone"
             dataKey="green"
             stroke="#00ff00"
-            fillOpacity={0.8}
+            fillOpacity={1}
             fill="#00ff00"
           />
           <Area
             type="monotone"
             dataKey="blue"
             stroke="#0000ff"
-            fillOpacity={0.8}
+            fillOpacity={1}
             fill="#0000ff"
           />
+          <Area
+            type="monotone"
+            dataKey="cyan"
+            stroke="#00ffff"
+            fillOpacity={1}
+            fill="#00ffff"
+          />
+          <Area
+            type="monotone"
+            dataKey="magenta"
+            stroke="#ff00ff"
+            fillOpacity={1}
+            fill="#ff00ff"
+          />
+          <Area
+            type="monotone"
+            dataKey="yellow"
+            stroke="#ffff00"
+            fillOpacity={1}
+            fill="#ffff00"
+          />
+          <Area
+            type="monotone"
+            dataKey="grey"
+            stroke="#bbbbbb"
+            fillOpacity={1}
+            fill="#bbbbbb"
+          />
         </AreaChart>
+        {/* <select>
+          <option value="all">all</option>
+          <option value="red">red</option>
+          <option value="green">green</option>
+          <option value="blue">blue</option>
+          <option value="grey">grey</option>
+        </select> */}
         <SliderFilter
           className="mt-15"
           filterName={"Contrast"}
@@ -190,11 +344,12 @@ function OptionSideBar(props) {
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("contrast", value);
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadContrast}
+          setReloadFilter={setReloadContrast}
+          setInvalidInput={setInvalidInput}
           tooltipText="Difference in luminance or colour that makes an object (or its representation in an image or display) distinguishable."
         />
         <SliderFilter
@@ -206,14 +361,13 @@ function OptionSideBar(props) {
           setDoneFilter={props.setDoneFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("brightness", value);
-            // props.allImage[props.currentImage].cssFilter.brightness =
-            //   props.currentImage >= 0 ? value : 100;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
           disable={!props.supportFilter}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadBrightness}
+          setReloadFilter={setReloadBrightness}
+          setInvalidInput={setInvalidInput}
           tooltipText="An attribute of visual perception in which a source appears to be radiating or reflecting light."
         />
         <SliderFilter
@@ -225,14 +379,13 @@ function OptionSideBar(props) {
           setDoneFilter={props.setDoneFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("opacity", value);
-            // props.allImage[props.currentImage].cssFilter.opacity =
-            //   props.currentImage >= 0 ? value : 100;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
           disable={props.disableOpacity || !props.supportFilter}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadOpacity}
+          setReloadFilter={setReloadOpacity}
+          setInvalidInput={setInvalidInput}
           tooltipText="Describes the transparency level, it ranges from 0 to 1."
           tooltipReason="Image type not support opacity filter."
         />
@@ -246,13 +399,12 @@ function OptionSideBar(props) {
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("saturate", value);
-            // props.allImage[props.currentImage].cssFilter.saturate =
-            //   props.currentImage >= 0 ? value : 100;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadSaturate}
+          setReloadFilter={setReloadSaturate}
+          setInvalidInput={setInvalidInput}
           tooltipText="Describes the depth or intensity of color present within an image."
         />
         <SliderFilter
@@ -265,13 +417,12 @@ function OptionSideBar(props) {
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("grayscale", value);
-            // props.allImage[props.currentImage].cssFilter.grayscale =
-            //   props.currentImage >= 0 ? value : 0;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadGrayscale}
+          setReloadFilter={setReloadGrayscale}
+          setInvalidInput={setInvalidInput}
           tooltipText="The value of each pixel is a single sample representing only an amount of light."
         />
         <SliderFilter
@@ -284,13 +435,12 @@ function OptionSideBar(props) {
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("invert", value);
-            // props.allImage[props.currentImage].cssFilter.invert =
-            //   props.currentImage >= 0 ? value : 0;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadInvert}
+          setReloadFilter={setReloadInvert}
+          setInvalidInput={setInvalidInput}
           tooltipText="Change all pixel color to the opposite."
         />
         <SliderFilter
@@ -303,13 +453,12 @@ function OptionSideBar(props) {
           disable={!props.supportFilter}
           getValue={(value) => {
             props.setChangeFilter(true);
-            // props.getFilter("sepia", value);
-            // props.allImage[props.currentImage].cssFilter.sepia =
-            //   props.currentImage >= 0 ? value : 0;
           }}
           resetValue={resetValue}
           setResetValue={setResetValue}
-          // setChangeFilter={setChangeFilter}
+          reloadFilter={reloadSepia}
+          setReloadFilter={setReloadSepia}
+          setInvalidInput={setInvalidInput}
           tooltipText="A form of photographic print toning – a tone added to a black and white photograph in the darkroom to “warm” up the tones."
         />
         <div
@@ -342,7 +491,6 @@ function OptionSideBar(props) {
               setResetValue(true);
               props.allImage[props.currentImage].cssFilter.reset = true;
               props.setChangeFilter(true);
-              // setChangeFilter(false);
               props.setResetFilter(true);
             }}
             disabled={!props.supportFilter}

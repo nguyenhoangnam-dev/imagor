@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
-import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
@@ -29,8 +28,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
+    width: 80,
+  },
+  input: {
+    fontSize: 12,
   },
   progress: {
     height: 14,
@@ -132,7 +133,7 @@ function ExportModal(props) {
   // }, [props.loadOrient]);
 
   useEffect(() => {
-    if (props.loadExport) {
+    if (props.currentImage >= 0) {
       const current = props.currentImage;
 
       setImageName(props.allImage[current].name);
@@ -149,12 +150,10 @@ function ExportModal(props) {
       setImageUnit(props.allImage[current].unit);
       setImageOrient(props.allImage[current].orient);
       setImageURL(props.allImage[current].url);
-
-      props.setLoadExport(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadExport]);
+  }, [props.currentImage]);
 
   return (
     <div>
@@ -187,65 +186,137 @@ function ExportModal(props) {
             </div>
             <div className="modal-box-content flex f-column">
               <div className="flex f-vcenter mb-15">
-                <Tooltip title="Image type" placement="top">
-                  <p style={{ width: 90 }}>Name</p>
-                </Tooltip>
-                <input type="text" value={imageName} />
-              </div>
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="destType">Destination type</InputLabel>
-                <Select
-                  native
-                  value={imageType}
-                  onChange={changeDestType}
-                  inputProps={{
-                    id: "destType",
+                <div style={{ width: 90 }}>
+                  <Tooltip title="Image name" placement="top">
+                    <p style={{ display: "inline-block" }}>Name</p>
+                  </Tooltip>
+                </div>
+                <input
+                  className="input-focus-none input-focus-border-bottom"
+                  type="text"
+                  value={imageName}
+                  onChange={(event) => {
+                    setImageName(event.target.value);
                   }}
-                >
-                  <option value={"jpg"}>JPG</option>
-                  <option value={"png"}>PNG</option>
-                  <option value={"webp"}>WEBP</option>
-                  <option value={"bmp"}>BMP</option>
-                </Select>
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <SliderQuality
-                  filterName={"Quality"}
-                  defaultValue={imageQuality}
-                  disable={!supportQuality}
-                  getValue={(value) => {
-                    // setQuality(value);
+                  style={{
+                    width: "calc(100% - 90px)",
+                    backgroundColor: "var(--color-1)",
+                    border: "none",
                   }}
-                  resetValue={false}
-                  setResetValue={(value) => {}}
                 />
-              </FormControl>
+              </div>
               <div className="flex f-vcenter mb-15">
-                <Tooltip title="Image type" placement="top">
-                  <p style={{ width: 90 }}>Dimension</p>
-                </Tooltip>
+                <div style={{ width: 90 }}>
+                  <Tooltip title="Image type" placement="top">
+                    <p style={{ display: "inline-block" }}>Type</p>
+                  </Tooltip>
+                </div>
+                <FormControl className={classes.formControl}>
+                  <Select
+                    className={classes.input}
+                    native
+                    value={imageType}
+                    onChange={changeDestType}
+                    inputProps={{
+                      id: "destType",
+                    }}
+                  >
+                    <option value={"jpg"}>JPG</option>
+                    <option value={"png"}>PNG</option>
+                    <option value={"webp"}>WEBP</option>
+                    <option value={"bmp"}>BMP</option>
+                  </Select>
+                </FormControl>
+              </div>
 
+              <SliderQuality
+                filterName={"Quality"}
+                defaultValue={imageQuality}
+                disable={!supportQuality}
+                getValue={(value) => {
+                  // setQuality(value);
+                }}
+                resetValue={false}
+                setResetValue={(value) => {}}
+              />
+              <div className="flex f-vcenter mb-15">
+                <div style={{ width: 90 }}>
+                  <Tooltip title="Image dimension" placement="top">
+                    <p style={{ display: "inline-block" }}>Dimension</p>
+                  </Tooltip>
+                </div>
                 <div className="flex f-vcenter">
-                  <input type="text" value={imageWidth} />
+                  <input
+                    type="text"
+                    className="input-focus-none input-focus-border-bottom"
+                    value={imageWidth}
+                    style={{
+                      width: 50,
+                      backgroundColor: "var(--color-1)",
+                      border: "none",
+                    }}
+                    onChange={(event) => {
+                      setImageWidth(event.target.value);
+                    }}
+                    onKeyUp={(event) => {
+                      if (event.key === "Enter") {
+                        if (imageWidth === "") {
+                          props.setErrorTitle("Error");
+                          props.setErrorMessage("Invalid number.");
+                          props.setShowErrorModal(true);
+                        }
+                      }
+                    }}
+                  />
                   <p>x</p>
-                  <input type="text" value={imageHeight} />
+                  <input
+                    type="text"
+                    className="input-focus-none input-focus-border-bottom"
+                    value={imageHeight}
+                    style={{
+                      width: 50,
+                      backgroundColor: "var(--color-1)",
+                      border: "none",
+                    }}
+                    onChange={(event) => {
+                      setImageHeight(event.target.value);
+                    }}
+                    onKeyUp={(event) => {
+                      if (event.key === "Enter") {
+                        if (imageHeight === "") {
+                          props.setErrorTitle("Error");
+                          props.setErrorMessage("Invalid number.");
+                          props.setShowErrorModal(true);
+                        }
+                      }
+                    }}
+                  />
                 </div>
               </div>
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="unit">Unit</InputLabel>
-                <Select
-                  native
-                  value={imageUnit}
-                  inputProps={{
-                    id: "unit",
-                  }}
-                >
-                  <option value={"px"}>PX</option>
-                  <option value={"inch"}>INCH</option>
-                  <option value={"cm"}>CM</option>
-                  <option value={"mm"}>MM</option>
-                </Select>
-              </FormControl>
+              <div className="flex f-vcenter mb-15">
+                <div style={{ width: 90 }}>
+                  <Tooltip title="Image unit" placement="top">
+                    <p style={{ display: "inline-block" }}>Unit</p>
+                  </Tooltip>
+                </div>
+
+                <FormControl className={classes.formControl}>
+                  <Select
+                    className={classes.input}
+                    native
+                    value={imageUnit}
+                    inputProps={{
+                      id: "unit",
+                    }}
+                  >
+                    <option value={"px"}>PX</option>
+                    <option value={"inch"}>INCH</option>
+                    <option value={"cm"}>CM</option>
+                    <option value={"mm"}>MM</option>
+                  </Select>
+                </FormControl>
+              </div>
+
               <div className="flex f-vcenter f-hcenter">
                 <img
                   className={

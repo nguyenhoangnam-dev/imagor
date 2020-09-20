@@ -14,30 +14,27 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 15,
   },
   colorPrimary: {
-    backgroundColor: "#bbe1fa",
+    backgroundColor: "var(--color-1)",
   },
   bar: {
     borderRadius: 5,
-    backgroundColor: "#3282b8",
+    backgroundColor: "var(--color-2)",
   },
 }));
 
 function StatusBar(props) {
   const classes = useStyles();
 
-  const [progressFilterValue] = useState(0);
+  const [progressFilterValue, setProgressFilterValue] = useState(0);
   const [colorModel, setColorModel] = useState(null);
-  const [channels, setChannels] = useState(null);
   const [bitDepth, setBitDepth] = useState(null);
   const [maker, setMaker] = useState(null);
   const [model, setModel] = useState(null);
-  const [fStop, setFStop] = useState(null);
+  const [fNumber, setFNumber] = useState(null);
   const [exposureTime, setExposureTime] = useState(null);
-  const [ISO, setISO] = useState(null);
-  const [exposureBias, setExposureBias] = useState(null);
   const [focalLength, setFocalLength] = useState(null);
-  const [maxAperture, setMaxAperture] = useState(null);
-  const [meteringMode, setMeteringMode] = useState(null);
+  const [xResolution, setXResolution] = useState(null);
+  const [yResolution, setYResolution] = useState(null);
 
   const [imageType, setImageType] = useState(null);
   const [imageSize, setImageSize] = useState(null);
@@ -46,39 +43,25 @@ function StatusBar(props) {
   const [imageHeight, setImageHeight] = useState(null);
 
   // Progress bar animation
-  // useEffect(() => {
-  //   const progressAnimation = setInterval(function () {
-  //     setProgressFilterValue((oldProgress) => {
-  //       if (oldProgress === 100 || !props.changeFilter) {
-  //         clearInterval(progressAnimation);
-  //         return 0;
-  //       }
-
-  //       return oldProgress + 1;
-  //     });
-
-  //     return () => {
-  //       clearInterval(progressAnimation);
-  //     };
-  //   }, 40);
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.changeFilter]);
-
   useEffect(() => {
-    if (props.currentImage >= 0 && props.loadHistogram) {
-      const current = props.currentImage;
+    if (props.currentImage >= 0) {
+      setProgressFilterValue(0);
 
-      setColorModel(props.allImage[current].colorModel);
-      setChannels(props.allImage[current].channels);
-      setBitDepth(props.allImage[current].bitDepth);
-    }
+      const progressAnimation = setInterval(function () {
+        setProgressFilterValue((oldProgress) => {
+          if (oldProgress === 100 || props.loadHistogram) {
+            clearInterval(progressAnimation);
+            return 100;
+          }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadHistogram]);
+          return oldProgress + 1;
+        });
 
-  useEffect(() => {
-    if (props.currentImage >= 0 && props.loadInformation) {
+        return () => {
+          clearInterval(progressAnimation);
+        };
+      }, 10);
+
       const current = props.currentImage;
       const allImage = props.allImage[current];
 
@@ -88,20 +71,58 @@ function StatusBar(props) {
       setImageWidth(allImage.width);
       setImageHeight(allImage.height);
 
+      setColorModel(allImage.colorModel);
+      setBitDepth(allImage.bitDepth);
+
       setMaker(allImage.maker);
       setModel(allImage.model);
-      setFStop(allImage.fStop);
+      setFNumber(allImage.fNumber);
       setExposureTime(allImage.exposureTime);
-      setISO(allImage.ISO);
-      setExposureBias(allImage.exposureBias);
       setFocalLength(allImage.focalLength);
-      setMaxAperture(allImage.maxAperture);
-      setMeteringMode(allImage.meteringMode);
-
-      props.setLoadInformation(false);
+      setXResolution(allImage.xResolution);
+      setYResolution(allImage.yResolution);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadInformation]);
+  }, [props.currentImage]);
+
+  // useEffect(() => {
+  //   if (props.currentImage >= 0 && props.loadHistogram) {
+  //     const current = props.currentImage;
+
+  //     setColorModel(props.allImage[current].colorModel);
+  //     setChannels(props.allImage[current].channels);
+  //     setBitDepth(props.allImage[current].bitDepth);
+  //   }
+
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.loadHistogram]);
+
+  // useEffect(() => {
+  //   if (props.currentImage >= 0 && props.loadInformation) {
+  //     const current = props.currentImage;
+  //     const allImage = props.allImage[current];
+
+  //     setImageType(allImage.type);
+  //     setImageSize(roundBytes(allImage.size));
+  //     setImageUnit(allImage.unit);
+  //     setImageWidth(allImage.width);
+  //     setImageHeight(allImage.height);
+
+  //     setMaker(allImage.maker);
+  //     setModel(allImage.model);
+  //     setFStop(allImage.fStop);
+  //     setExposureTime(allImage.exposureTime);
+  //     setISO(allImage.ISO);
+  //     setExposureBias(allImage.exposureBias);
+  //     setFocalLength(allImage.focalLength);
+  //     setMaxAperture(allImage.maxAperture);
+  //     setMeteringMode(allImage.meteringMode);
+
+  //     props.setLoadInformation(false);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.loadInformation]);
 
   return (
     <div className="status-bar flex f-vcenter f-space-between">
@@ -134,9 +155,6 @@ function StatusBar(props) {
         <Tooltip title="Image colour model" placement="top">
           <p>{colorModel}</p>
         </Tooltip>
-        <Tooltip title="Image channels" placement="top">
-          <p>{channels === 0 ? "" : channels}</p>
-        </Tooltip>
         <Tooltip title="Image bit depth" placement="top">
           <p>{bitDepth === 0 ? "" : bitDepth}</p>
         </Tooltip>
@@ -158,9 +176,9 @@ function StatusBar(props) {
           ""
         )}
 
-        {fStop ? (
+        {fNumber ? (
           <Tooltip title="F-stop" placement="top">
-            <p>{fStop}</p>
+            <p>{fNumber}</p>
           </Tooltip>
         ) : (
           ""
@@ -174,22 +192,6 @@ function StatusBar(props) {
           ""
         )}
 
-        {ISO ? (
-          <Tooltip title="ISO speed" placement="top">
-            <p>{ISO}</p>
-          </Tooltip>
-        ) : (
-          ""
-        )}
-
-        {exposureBias ? (
-          <Tooltip title="Exposure bias" placement="top">
-            <p>{exposureBias}</p>
-          </Tooltip>
-        ) : (
-          ""
-        )}
-
         {focalLength ? (
           <Tooltip title="Focal length" placement="top">
             <p>{focalLength}</p>
@@ -198,17 +200,17 @@ function StatusBar(props) {
           ""
         )}
 
-        {maxAperture ? (
-          <Tooltip title="Max aperture" placement="top">
-            <p>{maxAperture}</p>
+        {xResolution ? (
+          <Tooltip title="Horizontal resolution" placement="top">
+            <p>{xResolution}</p>
           </Tooltip>
         ) : (
           ""
         )}
 
-        {meteringMode ? (
-          <Tooltip title="Metering mode" placement="top">
-            <p>{meteringMode}</p>
+        {yResolution ? (
+          <Tooltip title="Vertical resolution" placement="top">
+            <p>{yResolution}</p>
           </Tooltip>
         ) : (
           ""

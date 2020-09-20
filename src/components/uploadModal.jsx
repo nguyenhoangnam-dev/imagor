@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 
 import { imagePattern, MIME } from "../global";
-import { checkFirstBytes } from "../helper";
+import { checkFirstBytes, checkSVG } from "../helper";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
+
+const getPathFromPublic = (path) => `${process.env.PUBLIC_URL}/${path}`;
+const wwSVGPath = getPathFromPublic("wwSVG.js");
+const wwSVG = new Worker(wwSVGPath);
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -89,19 +93,19 @@ function UploadModal(props) {
       );
     } else {
       if (inputType === "image/svg+xml") {
-        // wwSVG.postMessage(image);
-        // wwSVG.addEventListener("message", function (event) {
-        //   let svgContent = event.data;
-        //   if (checkSVG(svgContent)) {
-        //     if (inputSize > 52428800) {
-        //       alert("File should be <= 50MB.");
-        //     } else {
-        //       handleFiles(image);
-        //     }
-        //   } else {
-        //     alert("Can not read file.");
-        //   }
-        // });
+        wwSVG.postMessage(image);
+        wwSVG.onmessage = function (event) {
+          let svgContent = event.data;
+          if (checkSVG(svgContent)) {
+            if (inputSize > 52428800) {
+              alert("File should be <= 50MB.");
+            } else {
+              props.handleFiles(image);
+            }
+          } else {
+            alert("Can not read file.");
+          }
+        };
       } else {
         let fileBlob = image.slice(0, 4);
         let reader = new FileReader();
@@ -132,12 +136,12 @@ function UploadModal(props) {
   };
 
   useEffect(() => {
-    if (props.loadOrient) {
+    if (props.currentImage >= 0) {
       setOpenModal(false);
       props.setShowUploadModal(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadOrient]);
+  }, [props.currentImage]);
 
   useEffect(() => {
     if (props.showUploadModal) {

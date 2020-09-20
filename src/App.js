@@ -15,12 +15,16 @@ import ErrorModal from "./components/errorModal";
 import ExportModal from "./components/exportModal";
 import SettingModal from "./components/settingModal";
 import UploadModal from "./components/uploadModal";
+import ColorPickerModal from "./components/colorPicker";
+
 import { Beforeunload } from "react-beforeunload";
 
 import createGlobalStyle from "styled-components";
 
 import "./components.css";
 import "./App.css";
+
+const ExifReader = require("exifreader");
 
 const GlobalStyles = createGlobalStyle.div`
   height: 100%;
@@ -36,23 +40,29 @@ function App() {
   const appName = "2 Process Image";
 
   const [title, setTitle] = useState(appName);
-  const [showOption, setShowOption] = useState(true);
 
-  const [currentFilter, setCurrentFilter] = useState("");
-  const [currentValue, setCurrentValue] = useState(null);
-
+  // State of workplace
   const [currentImage, setCurrentImage] = useState(-1);
   const [countImage, setCountImage] = useState(0);
-  const [countAvailable, setCountAvailable] = useState(0);
   const [allImage, setAllImage] = useState([]);
+  const [allImageTag, setAllImageTag] = useState([]);
 
+  // State of filters
   const [changeFilter, setChangeFilter] = useState(false);
   const [resetFilter, setResetFilter] = useState(false);
   const [doneFilter, setDoneFilter] = useState(false);
 
+  // State of components
+  const [showOption, setShowOption] = useState(true);
   const [disableOpacity, setDisableOpacity] = useState(false);
   const [supportFilter, setSupportFilter] = useState(false);
 
+  // Filter history
+  const [reloadFilter, setReloadFilter] = useState(false); // Set all filter sliders to default value when change workplaces
+  const [undoFilter, setUndoFilter] = useState(false);
+  const [redoFilter, setRedoFilter] = useState(false);
+
+  // State of modals
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorTitle, setErrorTitle] = useState(null);
@@ -60,15 +70,23 @@ function App() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSettingModal, setShowSettingModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const [loadInformation, setLoadInformation] = useState(false);
-  const [loadHistogram, setLoadHistogram] = useState(false);
-  const [loadOrient, setLoadOrient] = useState(false);
+  // State of load events
   const [loadFilterURL, setLoadFilterURL] = useState(false);
   const [loadExport, setLoadExport] = useState(false);
+  const [loadThumbnail, setLoadThumbnail] = useState(false);
+  const [loadNewImage, setLoadNewImage] = useState(false);
 
+  // State of tags
+  const [closeTag, setCloseTag] = useState(false);
+  const [nextTag, setNextTag] = useState(false);
+  const [preTag, setPreTag] = useState(false);
+
+  // State of general
   const [showUnload, setShowUnload] = useState(null);
   const [env, setEnv] = useState(null);
+  const [currentColor, setCurrentColor] = useState(null);
 
   // Theme
   const [color1, setColor1] = useState("#f4eeff");
@@ -85,6 +103,11 @@ function App() {
     OPEN_UPLOAD: "ctrl+shift+u",
     OPEN_FULLSCREEN: "ctrl+shift+f",
     OPEN_SETTING: "alt+s",
+    CLOSE_CURRENT_TAG: "alt+w",
+    OPEN_NEXT_TAG: "alt+n",
+    OPEN_PRE_TAG: "alt+p",
+    UNDO_FILTER: "alt+z",
+    REDO_FILTER: "alt+shift+z",
   };
 
   // Handle hotkey event
@@ -93,16 +116,31 @@ function App() {
       setShowOption((show) => !show);
     },
     OPEN_EXPORT: (event) => {
-      setShowExportModal((show) => !show);
+      setShowExportModal(true);
     },
     OPEN_UPLOAD: (event) => {
-      setShowUploadModal((show) => !show);
+      setShowUploadModal(true);
     },
     OPEN_FULLSCREEN: (event) => {
-      setShowFullScreen((show) => !show);
+      setShowFullScreen(true);
     },
     OPEN_SETTING: (event) => {
-      setShowSettingModal((show) => !show);
+      setShowSettingModal(true);
+    },
+    CLOSE_CURRENT_TAG: (event) => {
+      setCloseTag(true);
+    },
+    OPEN_NEXT_TAG: (event) => {
+      setNextTag(true);
+    },
+    OPEN_PRE_TAG: (event) => {
+      setPreTag(true);
+    },
+    UNDO_FILTER: (event) => {
+      setUndoFilter(true);
+    },
+    REDO_FILTER: (event) => {
+      setRedoFilter(true);
     },
   };
 
@@ -126,9 +164,12 @@ function App() {
 
   const handleFiles = (image) => {
     // const imageInitialExtension = MIME[imageInitialType].ext;
+    const imageName = image.name;
+    const imageSize = image.size;
+    const imageType = image.type;
 
     // Set image information to layout
-    setTitle(image.name + " | " + appName); // Set title of web to name of image
+    setTitle(imageName + " | " + appName); // Set title of web to name of image
 
     // Check support option sidebar
     if (!notCanvasFilter) {
@@ -139,38 +180,134 @@ function App() {
       setShowErrorModal(true);
     }
 
-    // set image blob
-    let newImageURL = URL.createObjectURL(image);
+    let colorModel,
+      bitDepth,
+      maker,
+      model,
+      exposureTime,
+      fNumber,
+      focalLength,
+      xResolution,
+      yResolution,
+      width,
+      height,
+      orient;
 
-    setAllImage([
-      ...allImage,
-      {
-        id: countImage,
-        name: image.name,
-        size: image.size,
-        type: image.type,
-        url: newImageURL,
-        unit: "px",
-        loadMeta: false,
-        remove: false,
-        cssFilter: {
-          Contrast: 100,
-          Brightness: 100,
-          Blur: 0,
-          Opacity: 100,
-          Saturate: 100,
-          Grayscale: 0,
-          Invert: 0,
-          Sepia: 0,
-          reset: false,
+    image.arrayBuffer().then((buffer) => {
+      const metadata = ExifReader.load(buffer);
+
+      console.log(metadata);
+      if (imageType === "image/png") {
+        colorModel = metadata["Color Type"].description;
+
+        bitDepth = metadata["Bit Depth"].description;
+
+        width = metadata["Image Width"].value;
+        height = metadata["Image Height"].value;
+
+        if (width >= height) {
+          orient = "landscape";
+        } else {
+          orient = "portrait";
+        }
+      } else if (imageType === "image/jpeg") {
+        if (metadata["Color Space"]) {
+          colorModel = metadata["Color Space"].description;
+        } else {
+          colorModel = metadata["Color Components"].description;
+        }
+
+        bitDepth = metadata["Bits Per Sample"].description;
+
+        if (metadata.Make) {
+          maker = metadata.Make.description;
+        }
+
+        if (metadata.Model) {
+          model = metadata.Model.description;
+        }
+
+        if (metadata.ExposureTime) {
+          exposureTime = metadata.ExposureTime.description;
+        }
+
+        if (metadata.FNumber) {
+          fNumber = metadata.FNumber.description;
+        }
+
+        if (metadata.FocalLength) {
+          focalLength = metadata.FocalLength.description;
+        }
+
+        if (metadata.XResolution) {
+          xResolution = metadata.XResolution.description;
+        }
+
+        if (metadata.YResolution) {
+          yResolution = metadata.YResolution.description;
+        }
+
+        width = metadata["Image Width"].value;
+        height = metadata["Image Height"].value;
+
+        if (width >= height) {
+          orient = "landscape";
+        } else {
+          orient = "portrait";
+        }
+      } else if (imageType === "image/webp") {
+      }
+
+      // set image URL
+      let newImageURL = URL.createObjectURL(image);
+
+      setAllImage([
+        ...allImage,
+        {
+          id: countImage,
+          name: imageName,
+          size: imageSize,
+          type: imageType,
+          url: newImageURL,
+          colorModel,
+          bitDepth,
+          maker,
+          model,
+          exposureTime,
+          fNumber,
+          focalLength,
+          xResolution,
+          yResolution,
+          width,
+          height,
+          orient,
+          unit: "px",
+          remove: false,
+          cssFilter: {
+            Contrast: 100,
+            Brightness: 100,
+            Blur: 0,
+            Opacity: 100,
+            Saturate: 100,
+            Grayscale: 0,
+            Invert: 0,
+            Sepia: 0,
+            reset: false,
+          },
+          filterHistory: [
+            "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)",
+          ],
+          filterPosition: 0,
         },
-        changeFilter: false,
-      },
-    ]);
+      ]);
 
-    setCurrentImage(countImage);
-    setCountImage(countImage + 1);
-    setCountAvailable(countAvailable + 1);
+      setAllImageTag([...allImageTag, { id: countImage, name: imageName }]);
+
+      setCurrentImage(countImage);
+      setCountImage(countImage + 1);
+
+      setLoadNewImage(true);
+    });
 
     // Only support opacity filter for png
     if (image.type !== "image/png") {
@@ -178,14 +315,10 @@ function App() {
     }
   };
 
-  const getFilter = (filter, value) => {
-    setCurrentFilter(filter);
-    setCurrentValue(value);
-  };
-
   useEffect(() => {
     document.title = title;
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentImage]);
 
   // Check product or development mode
   useEffect(() => {
@@ -213,6 +346,13 @@ function App() {
     }
   }, [currentImage, env]);
 
+  useEffect(() => {
+    if (currentImage >= 0) {
+      setReloadFilter(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentImage]);
+
   return (
     <GlobalStyles
       color1={color1}
@@ -229,13 +369,19 @@ function App() {
           setCurrentImage={setCurrentImage}
           allImage={allImage}
           setAllImage={setAllImage}
+          allImageTag={allImageTag}
+          setAllImageTag={setAllImageTag}
           setShowFullScreen={setShowFullScreen}
           setShowExportModal={setShowExportModal}
           setShowSettingModal={setShowSettingModal}
           showUploadModal={showUploadModal}
           setShowUploadModal={setShowUploadModal}
-          countAvailable={countAvailable}
-          setCountAvailable={setCountAvailable}
+          closeTag={closeTag}
+          setCloseTag={setCloseTag}
+          nextTag={nextTag}
+          setNextTag={setNextTag}
+          preTag={preTag}
+          setPreTag={setPreTag}
         />
         <div className="flex main f-space-between">
           <ToolSideBar />
@@ -247,12 +393,9 @@ function App() {
             showOption={showOption}
             showFullScreen={showFullScreen}
             setShowFullScreen={setShowFullScreen}
-            setLoadInformation={setLoadInformation}
             setShowErrorModal={setShowErrorModal}
             setErrorTitle={setErrorTitle}
             setErrorMessage={setErrorMessage}
-            loadOrient={loadOrient}
-            setLoadOrient={setLoadOrient}
             loadFilterURL={loadFilterURL}
             setLoadFilterURL={setLoadFilterURL}
             changeFilter={changeFilter}
@@ -264,17 +407,27 @@ function App() {
             allImage={allImage}
             showOption={showOption}
             setShowOption={setShowOption}
-            getFilter={getFilter}
             setChangeFilter={setChangeFilter}
             setResetFilter={setResetFilter}
             disableOpacity={disableOpacity}
             supportFilter={supportFilter}
-            setLoadHistogram={setLoadHistogram}
-            loadHistogram={loadHistogram}
-            loadInformation={loadInformation}
+            doneFilter={doneFilter}
             setDoneFilter={setDoneFilter}
             loadFilterURL={loadFilterURL}
             setLoadFilterURL={setLoadFilterURL}
+            setShowErrorModal={setShowErrorModal}
+            setErrorTitle={setErrorTitle}
+            setErrorMessage={setErrorMessage}
+            loadThumbnail={loadThumbnail}
+            setLoadThumbnail={setLoadThumbnail}
+            loadNewImage={loadNewImage}
+            setLoadNewImage={setLoadNewImage}
+            reloadFilter={reloadFilter}
+            setReloadFilter={setReloadFilter}
+            undoFilter={undoFilter}
+            setUndoFilter={setUndoFilter}
+            redoFilter={redoFilter}
+            setRedoFilter={setRedoFilter}
           />
           <OptionMinimal
             showOption={showOption}
@@ -285,29 +438,21 @@ function App() {
           currentImage={currentImage}
           allImage={allImage}
           changeFilter={changeFilter}
-          loadInformation={loadInformation}
-          setLoadInformation={setLoadInformation}
-          loadHistogram={loadHistogram}
-          setLoadHistogram={setLoadHistogram}
         />
         <RenderImage
           countImage={countImage}
           currentImage={currentImage}
           allImage={allImage}
-          filter={currentFilter}
-          value={currentValue}
           changeFilter={changeFilter}
           setChangeFilter={setChangeFilter}
           resetFilter={resetFilter}
           setResetFilter={setResetFilter}
-          loadInformation={loadInformation}
-          setLoadInformation={setLoadInformation}
-          setLoadHistogram={setLoadHistogram}
-          setLoadOrient={setLoadOrient}
           setLoadFilterURL={setLoadFilterURL}
           doneFilter={doneFilter}
           setDoneFilter={setDoneFilter}
           setLoadExport={setLoadExport}
+          setLoadThumbnail={setLoadThumbnail}
+          loadNewImage={loadNewImage}
         />
         <UploadModal
           currentImage={currentImage}
@@ -317,7 +462,6 @@ function App() {
           setShowErrorModal={setShowErrorModal}
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
-          loadOrient={loadOrient}
         />
         <ErrorModal
           showErrorModal={showErrorModal}
@@ -353,6 +497,9 @@ function App() {
           setColor2={setColor2}
           setColor3={setColor3}
           setColor4={setColor4}
+          setShowErrorModal={setShowErrorModal}
+          setErrorTitle={setErrorTitle}
+          setErrorMessage={setErrorMessage}
         />
         <SettingModal
           showSettingModal={showSettingModal}
@@ -366,6 +513,19 @@ function App() {
           setColor2={setColor2}
           setColor3={setColor3}
           setColor4={setColor4}
+          setShowColorPicker={setShowColorPicker}
+          currentColor={currentColor}
+          setCurrentColor={setCurrentColor}
+          showColorPicker={showColorPicker}
+          setShowErrorModal={setShowErrorModal}
+          setErrorTitle={setErrorTitle}
+          setErrorMessage={setErrorMessage}
+        />
+        <ColorPickerModal
+          showColorPicker={showColorPicker}
+          setShowColorPicker={setShowColorPicker}
+          currentColor={currentColor}
+          setCurrentColor={setCurrentColor}
         />
       </HotKeys>
       {showUnload}

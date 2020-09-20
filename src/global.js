@@ -1,5 +1,9 @@
 export const imagePattern = new RegExp("image/(png|jpeg|webp|bmp|svg\\+xml)");
 
+export const hexPattern = new RegExp("^#([0-9a-f]{3}|[0-9a-f]{6})$", "i");
+
+export const percentPattern = new RegExp("^([0-9]|[1-9][0-9]|[100])$");
+
 // Check browser for support feature.
 const userAgent = navigator.userAgent.toLowerCase();
 const checkBrowser = (regex) => {

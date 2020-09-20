@@ -3,6 +3,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import SliderMaterial from "@material-ui/core/Slider";
 import Tooltip from "@material-ui/core/Tooltip";
 
+import { percentPattern } from "../global";
+
 const useStyles = makeStyles({
   root: {
     width: "100%",
@@ -20,9 +22,6 @@ const useStyles = makeStyles({
     "&:hover": {
       backgroundColor: "var(--color-3)",
     },
-  },
-  track: {
-    // backgroundColor: "#3282b8",
   },
   rail: {
     backgroundColor: "var(--color-3)",
@@ -72,7 +71,37 @@ function InputFilter(props) {
 
   const enterInputFilter = (event) => {
     if (event.key === "Enter") {
-      props.setFilterValue(filterValue);
+      if (percentPattern.test(filterValue)) {
+        props.setFilterValue(parseInt(filterValue));
+        props.setInputDone(true);
+      } else {
+        props.setInvalidInput(true);
+        setFilterValue(props.filterValue);
+      }
+    } else if (event.key === "ArrowUp") {
+      if (filterValue < 100) {
+        setFilterValue((current) => parseInt(current) + 1);
+        props.setFilterValue(parseInt(filterValue) + 1);
+      }
+    } else if (event.key === "ArrowDown") {
+      if (filterValue > 0) {
+        setFilterValue((current) => parseInt(current) - 1);
+        props.setFilterValue(parseInt(filterValue) - 1);
+      }
+    }
+  };
+
+  const scrollInputFilter = (event) => {
+    if (event.deltaY < 0) {
+      if (filterValue < 100) {
+        setFilterValue((current) => parseInt(current) + 1);
+        props.setFilterValue(parseInt(filterValue) + 1);
+      }
+    } else if (event.deltaY > 0) {
+      if (filterValue > 0) {
+        setFilterValue((current) => parseInt(current) - 1);
+        props.setFilterValue(parseInt(filterValue) - 1);
+      }
     }
   };
 
@@ -101,6 +130,7 @@ function InputFilter(props) {
           value={filterValue}
           onChange={changeInputFilter}
           onKeyUp={enterInputFilter}
+          onWheel={scrollInputFilter}
           disabled={props.disable}
           style={{ backgroundColor: "var(--color-1)" }}
         />
@@ -112,6 +142,7 @@ function InputFilter(props) {
 
 function SliderFilter(props) {
   const [filterValue, setFilterValue] = useState(props.defaultValue);
+  const [inputDone, setInputDone] = useState(false);
 
   useEffect(() => {
     // if (!props.resetValue) {
@@ -119,22 +150,38 @@ function SliderFilter(props) {
     // }
     const current = props.currentImage;
     if (current >= 0) {
-      props.allImage[props.currentImage].cssFilter[
-        props.filterName
-      ] = filterValue;
+      props.allImage[current].cssFilter[props.filterName] = filterValue;
     }
+
     props.getValue(filterValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValue]);
 
   useEffect(() => {
     if (props.resetValue) {
-      // props.setChangeFilter(false);
       setFilterValue(props.defaultValue);
       props.setResetValue(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.resetValue]);
+
+  useEffect(() => {
+    if (inputDone) {
+      props.setDoneFilter(true);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputDone]);
+
+  useEffect(() => {
+    if (props.reloadFilter) {
+      const current = props.currentImage;
+
+      setFilterValue(props.allImage[current].cssFilter[props.filterName]);
+      props.setReloadFilter(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.reloadFilter]);
 
   return (
     <div style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}>
@@ -150,6 +197,8 @@ function SliderFilter(props) {
           setFilterValue={setFilterValue}
           disable={props.disable}
           tooltipReason={props.tooltipReason}
+          setInputDone={setInputDone}
+          setInvalidInput={props.setInvalidInput}
         />
       </div>
       <Slider

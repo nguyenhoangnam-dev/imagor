@@ -142,3 +142,12 @@
   -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
   filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
 }
+
+.input-focus-none:focus {
+  outline: none;
+}
+
+.input-focus-border-bottom:focus {
+  box-sizing: content-box;
+  border-bottom: 2px solid var(--color-4) !important;
+}

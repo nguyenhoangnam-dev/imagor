@@ -17,7 +17,7 @@ Some features still in progress but already appear in this version.
 As the text mention in the image, user can click the white box or drag file from device into the white box to start upload new image.
 
 Note1: _Only **one** file each time drag to upload file._<br />
-Note2: _Currently project only support **image/jpeg**, **image/png**, **image/webp**._
+Note2: _Currently project only support **image/jpeg**, **image/png**, **image/webp**, **image/svg**._
 
 ![Upload panel](img/uploadPanel.jpg)
 _Upload box for click or drag to upload file_
@@ -42,7 +42,7 @@ This button will open export menu for rendering image. Currently this feature is
 
 This button will open [upload panel](#upload-panel) for upload new image.
 
-#### Fullscreen button (Ctrl + Shift + F)
+#### Full-screen button (Ctrl + Shift + F)
 
 This button will change current image in [main screen](#main-screen) to full screen mode if browser support. Notice that image in full screen mode may display different depend on your browser and you can exist full screen mode with Esc key. (Some browsers do not show how to exit.)
 
@@ -78,9 +78,11 @@ As its name, this bar have several filters for helping user custom image from th
 
 This is an extremely cool thing which show intensity of each color (Red, Green, Blue) from shadow, mid-tone and highlight. Using rechart.js to visualize data and transform y-axis to get more friendly chart.
 
+Note1: _In 1 bit depth image imagor may crash when try to show histogram._
+
 #### Filter
 
-When move the mouse to name of each filters user will get small explain about this filter. The slider in the bottom of each filters can move pretty smooth which will trigger [main screen](#main-screen) to update its image. The number on the right of filter's name not only show current value of slider but also can modify by click in it.
+When move the mouse to name of each filters user will get small explain about this filter. The slider in the bottom of each filters can move pretty smooth which will trigger [main screen](#main-screen) to update its image. The number on the right of filter's name not only show current value of slider but also can be modified by click in it. Moreover, by pressing arrow key or scrolling mouse, value in input box will increase or decrease respectively.
 
 ![Option bar](img/optionBar.jpg)
 
@@ -99,11 +101,6 @@ Most information about image include some metadata will be display in status bar
 
 ![Status bar](img/statusBar.jpg)
 
-Note1: _Model of image is always RGB because browser automatically change upload image to RGB._<br />
-Note2: _Bit depth is the sum of all bit for all channels._<br />
-Note3: _Bit depth and number of channels may work wrong base on each browser._
-Note4: _In large image imagor may crash when try to show bit depth, color model._
-
 ## Hotkey
 
 | Hotkey               | Purpose                        |
@@ -113,6 +110,11 @@ Note4: _In large image imagor may crash when try to show bit depth, color model.
 | **Ctrl + Shift + E** | Show export menu               |
 | **Ctrl + Shift + U** | Open upload panel              |
 | **Alt + S**          | Open setting menu              |
+| **Alt + W**          | Close current tag              |
+| **Alt + N**          | Open next tag                  |
+| **Alt + P**          | Open previous tag              |
+| **Alt + Z**          | Undo filter                    |
+| **Alt + Shift + Z**  | Redo filter                    |
 
 ## Contributing
 

@@ -20,39 +20,19 @@ function MainScreen(props) {
   const screen = screenRef.current;
 
   useEffect(() => {
-    setShowImage(false);
+    // setShowImage(false);
 
     const current = props.currentImage;
 
     if (current >= 0) {
+      setShowImage(false);
       setImageURL(props.allImage[current].url);
+      setImageOrient(props.allImage[current].orient);
+      setShowImage(true);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentImage]);
-
-  useEffect(() => {
-    if (props.loadOrient) {
-      const current = props.currentImage;
-
-      setImageOrient(props.allImage[current].orient);
-      setShowImage(true);
-
-      props.setLoadOrient(false);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadOrient]);
-
-  // useEffect(() => {
-  //   if (props.loadFilterURL) {
-  //     const current = props.currentImage;
-
-  //     setImageURL(props.allImage[current].url);
-  //     props.setLoadFilterURL(false);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.loadFilterURL]);
 
   useEffect(() => {
     if (props.currentImage >= 0 && props.changeFilter) {

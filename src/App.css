@@ -334,3 +334,8 @@ body {
 .error-box-button {
   padding: 10px;
 }
+
+/* Setting modal */
+.setting-input-color:focus {
+  outline: none;
+}

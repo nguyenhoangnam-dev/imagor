@@ -41,3 +41,44 @@ export const contrastColor = (hex) => {
 
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? "#000000" : "#FFFFFF";
 };
+
+let svgPattern = /^\s*(?:<\?xml[^>]*>\s*)?(?:<!doctype svg[^>]*\s*(?:\[?(?:\s*<![^>]*>\s*)*\]?)*[^>]*>\s*)?(?:<svg[^>]*>[^]*<\/svg>|<svg[^/>]*\/\s*>)\s*$/i;
+let htmlCommentRegex = /<!--([\s\S]*?)-->/g;
+let entityRegex = /\s*<!Entity\s+\S*\s*(?:"|')[^"]+(?:"|')\s*>/gim;
+
+function cleanEntities(svg) {
+  return svg.replace(entityRegex, "");
+}
+
+export const checkSVG = (svg) => {
+  return (
+    Boolean(svg) &&
+    svgPattern.test(cleanEntities(svg.toString()).replace(htmlCommentRegex, ""))
+  );
+};
+
+function upperFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export const setFilter = (filterString) => {
+  const sampleFilter = {
+    Contrast: 100,
+    Brightness: 100,
+    Blur: 0,
+    Opacity: 100,
+    Saturate: 100,
+    Grayscale: 0,
+    Invert: 0,
+    Sepia: 0,
+    reset: false,
+  };
+
+  let filterArray = filterString.split(" ");
+
+  for (let i = 0; i < filterArray.length; i++) {
+    let filter = filterArray[i].split("(");
+    sampleFilter[upperFirstLetter(filter[0])] = parseInt(filter[1]);
+  }
+  return sampleFilter;
+};
