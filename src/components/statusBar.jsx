@@ -6,6 +6,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 
+import github from "../img/github.svg";
+
 const useStyles = makeStyles((theme) => ({
   progress: {
     height: 14,
@@ -64,6 +66,7 @@ function StatusBar(props) {
 
       const current = props.currentImage;
       const allImage = props.allImage[current];
+      const metadata = allImage.metadata;
 
       setImageType(allImage.type);
       setImageSize(roundBytes(allImage.size));
@@ -71,58 +74,112 @@ function StatusBar(props) {
       setImageWidth(allImage.width);
       setImageHeight(allImage.height);
 
-      setColorModel(allImage.colorModel);
-      setBitDepth(allImage.bitDepth);
+      if (allImage.type === "image/jpeg") {
+        if (metadata.icc) {
+          setColorModel(metadata.icc["Color Space"].description);
+        } else {
+          setColorModel(metadata.file["Color Components"].description);
+        }
 
-      setMaker(allImage.maker);
-      setModel(allImage.model);
-      setFNumber(allImage.fNumber);
-      setExposureTime(allImage.exposureTime);
-      setFocalLength(allImage.focalLength);
-      setXResolution(allImage.xResolution);
-      setYResolution(allImage.yResolution);
+        setBitDepth(metadata.file["Bits Per Sample"].description);
+
+        if (metadata.exif) {
+          const Exif = metadata.exif;
+
+          if (Exif.Make) {
+            setMaker(Exif.Make.description);
+          } else {
+            setMaker(null);
+          }
+
+          if (Exif.Modal) {
+            setModel(Exif.Modal.description);
+          } else {
+            setModel(null);
+          }
+
+          if (Exif.ExposureTime) {
+            setExposureTime(Exif.ExposureTime.description);
+          } else {
+            setExposureTime(null);
+          }
+
+          if (Exif.FNumber) {
+            setFNumber(Exif.FNumber.description);
+          } else {
+            setFNumber(null);
+          }
+
+          if (Exif.FocalLength) {
+            setFocalLength(Exif.FocalLength.description);
+          } else {
+            setFocalLength(null);
+          }
+
+          if (Exif.XResolution) {
+            setXResolution(Exif.XResolution.description);
+          } else {
+            setXResolution(null);
+          }
+
+          if (Exif.yResolution) {
+            setYResolution(Exif.yResolution.description);
+          } else {
+            setYResolution(null);
+          }
+        } else {
+          setMaker(null);
+          setModel(null);
+          setFNumber(null);
+          setExposureTime(null);
+          setFocalLength(null);
+          setXResolution(null);
+          setYResolution(null);
+        }
+      } else if (allImage.type === "image/png") {
+        const PNG = metadata.pngFile;
+        /**
+         * Color type describes the image data.
+         * 0: Grayscale
+         * 2: RGB
+         * 3: Palette
+         * 4: Grayscale with alpha
+         * 6: RGB with alpha
+         */
+        setColorModel(PNG["Color Type"].description);
+
+        // This is number of bit to store each channel of one pixel.
+        setBitDepth(PNG["Bit Depth"].description);
+
+        setMaker(null);
+        setModel(null);
+        setFNumber(null);
+        setExposureTime(null);
+        setFocalLength(null);
+        setXResolution(null);
+        setYResolution(null);
+      }
+    } else {
+      setImageType(null);
+      setImageSize(null);
+      setImageUnit(null);
+      setImageWidth(null);
+      setImageHeight(null);
+
+      setColorModel(null);
+      setBitDepth(null);
+
+      setMaker(null);
+      setModel(null);
+      setFNumber(null);
+      setExposureTime(null);
+      setFocalLength(null);
+      setXResolution(null);
+      setYResolution(null);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentImage]);
-
-  // useEffect(() => {
-  //   if (props.currentImage >= 0 && props.loadHistogram) {
-  //     const current = props.currentImage;
-
-  //     setColorModel(props.allImage[current].colorModel);
-  //     setChannels(props.allImage[current].channels);
-  //     setBitDepth(props.allImage[current].bitDepth);
-  //   }
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.loadHistogram]);
-
-  // useEffect(() => {
-  //   if (props.currentImage >= 0 && props.loadInformation) {
-  //     const current = props.currentImage;
-  //     const allImage = props.allImage[current];
-
-  //     setImageType(allImage.type);
-  //     setImageSize(roundBytes(allImage.size));
-  //     setImageUnit(allImage.unit);
-  //     setImageWidth(allImage.width);
-  //     setImageHeight(allImage.height);
-
-  //     setMaker(allImage.maker);
-  //     setModel(allImage.model);
-  //     setFStop(allImage.fStop);
-  //     setExposureTime(allImage.exposureTime);
-  //     setISO(allImage.ISO);
-  //     setExposureBias(allImage.exposureBias);
-  //     setFocalLength(allImage.focalLength);
-  //     setMaxAperture(allImage.maxAperture);
-  //     setMeteringMode(allImage.meteringMode);
-
-  //     props.setLoadInformation(false);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.loadInformation]);
 
   return (
     <div className="status-bar flex f-vcenter f-space-between">
@@ -215,6 +272,16 @@ function StatusBar(props) {
         ) : (
           ""
         )}
+
+        <Tooltip title="Imagor repository">
+          <a href="https://github.com/nguyenhoangnam-dev/imagor" target="blank">
+            <img
+              src={github}
+              style={{ height: 18, marginLeft: 15 }}
+              alt="Link to project in github"
+            />
+          </a>
+        </Tooltip>
       </div>
     </div>
   );

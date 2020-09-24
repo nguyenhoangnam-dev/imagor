@@ -41,13 +41,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ErrorModal(props) {
+function MetadataModal(props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
   const handleClose = () => {
     setOpen(false);
-    props.setShowErrorModal(false);
+    props.setShowMetadataModal(false);
   };
 
   useEffect(() => {
@@ -57,13 +57,13 @@ function ErrorModal(props) {
       setOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.showErrorModal]);
+  }, [props.showMetadataModal]);
 
   return (
     <div>
       <Modal
-        aria-labelledby="Error modal"
-        aria-describedby={props.errorMessage || ""}
+        aria-labelledby="Metadata modal"
+        aria-describedby="Show all metadata can get from image."
         className={classes.modal}
         open={open}
         onClose={handleClose}
@@ -77,27 +77,27 @@ function ErrorModal(props) {
           contrast3={props.contrast3}
           textColor={props.textColor}
         >
-          <div className="error-box">
-            <div className="error-box-header flex f-space-between f-vcenter">
-              <h1>{props.errorTitle}</h1>
+          <div className="modal-box">
+            <div className="modal-box-header flex f-space-between f-vcenter">
+              <h1>Metadata menu</h1>
               <Close
                 className="close-tag c-pointer"
                 onClick={() => {
                   setOpen(false);
-                  props.setShowErrorModal(false);
+                  props.setShowMetadataModal(false);
                 }}
                 style={{ fill: "white" }}
               />
             </div>
-            <div className="error-box-content">
-              <p>{props.errorMessage}</p>
+            <div className="modal-box-content metadata-content">
+              <h2>Currently empty</h2>
             </div>
-            <div className="error-box-button flex f-hright f-vcenter">
+            <div className="modal-box-button flex f-hright f-vcenter">
               <Button
                 className={classes.button}
                 onClick={() => {
                   setOpen(false);
-                  props.setShowErrorModal(false);
+                  props.setShowMetadataModal(false);
                 }}
               >
                 Close
@@ -110,4 +110,4 @@ function ErrorModal(props) {
   );
 }
 
-export default ErrorModal;
+export default MetadataModal;

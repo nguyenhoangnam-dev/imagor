@@ -118,6 +118,8 @@ function ExportModal(props) {
   useEffect(() => {
     if (props.showExportModal) {
       setOpen(true);
+    } else {
+      setOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.showExportModal]);
@@ -163,6 +165,7 @@ function ExportModal(props) {
         className={classes.modal}
         open={open}
         onClose={handleClose}
+        BackdropProps={{ style: { backgroundColor: "transparent" } }}
       >
         <GlobalStyles
           color1={props.color1}

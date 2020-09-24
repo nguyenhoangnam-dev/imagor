@@ -146,6 +146,8 @@ function UploadModal(props) {
   useEffect(() => {
     if (props.showUploadModal) {
       setOpenModal(true);
+    } else {
+      setOpenModal(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.showUploadModal]);
@@ -166,6 +168,7 @@ function UploadModal(props) {
         className={classes.modal}
         open={openModal}
         onClose={handleClose}
+        BackdropProps={{ style: { backgroundColor: "transparent" } }}
       >
         <div
           className={`upload-box flex f-hcenter f-vcenter ${

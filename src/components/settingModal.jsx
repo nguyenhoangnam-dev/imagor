@@ -141,6 +141,8 @@ function SettingModal(props) {
     if (props.showSettingModal) {
       setBreakPoint([props.color1, props.color2, props.color3, props.color4]);
       setOpen(true);
+    } else {
+      setOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.showSettingModal]);

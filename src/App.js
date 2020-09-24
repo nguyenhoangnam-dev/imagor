@@ -26,6 +26,7 @@ import "./App.css";
 
 const ExifReader = require("exifreader");
 
+// Send theme to the styled-components
 const GlobalStyles = createGlobalStyle.div`
   height: 100%;
   --color-1: ${(props) => props.color1};
@@ -37,8 +38,7 @@ const GlobalStyles = createGlobalStyle.div`
 `;
 
 function App() {
-  const appName = "2 Process Image";
-
+  const appName = "Imagor"; // Name of the project may change in the future.
   const [title, setTitle] = useState(appName);
 
   // State of workplace
@@ -108,6 +108,7 @@ function App() {
     OPEN_PRE_TAG: "alt+p",
     UNDO_FILTER: "alt+z",
     REDO_FILTER: "alt+shift+z",
+    CLOSE_MODAL: "alt+x",
   };
 
   // Handle hotkey event
@@ -142,28 +143,27 @@ function App() {
     REDO_FILTER: (event) => {
       setRedoFilter(true);
     },
+    CLOSE_MODAL: (event) => {
+      if (showErrorModal) {
+        setShowErrorModal(false);
+      } else if (showSettingModal) {
+        setShowSettingModal(false);
+      } else if (showExportModal) {
+        setShowExportModal(false);
+      } else if (showUploadModal) {
+        setShowUploadModal(false);
+      } else if (showColorPicker) {
+        setShowColorPicker(false);
+      }
+    },
   };
 
-  // toBlob polyfill
-  if (!HTMLCanvasElement.prototype.toBlob) {
-    Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
-      value: function (callback, type, quality) {
-        var dataURL = this.toDataURL(type, quality).split(",")[1];
-        setTimeout(function () {
-          var binStr = atob(dataURL),
-            len = binStr.length,
-            arr = new Uint8Array(len);
-          for (var i = 0; i < len; i++) {
-            arr[i] = binStr.charCodeAt(i);
-          }
-          callback(new Blob([arr], { type: type || "image/png" }));
-        });
-      },
-    });
-  }
-
-  const handleFiles = (image) => {
-    // const imageInitialExtension = MIME[imageInitialType].ext;
+  /**
+   * Handle image after upload to get information use ExifReader.
+   * TODO: Add meta object to store all metadata.
+   * @param {File} image Store data of image after upload.
+   */
+  function handleFiles(image) {
     const imageName = image.name;
     const imageSize = image.size;
     const imageType = image.type;
@@ -171,7 +171,7 @@ function App() {
     // Set image information to layout
     setTitle(imageName + " | " + appName); // Set title of web to name of image
 
-    // Check support option sidebar
+    // Check support filter in canvas before renders.
     if (!notCanvasFilter) {
       setSupportFilter(true);
     } else {
@@ -180,30 +180,20 @@ function App() {
       setShowErrorModal(true);
     }
 
-    let colorModel,
-      bitDepth,
-      maker,
-      model,
-      exposureTime,
-      fNumber,
-      focalLength,
-      xResolution,
-      yResolution,
-      width,
-      height,
-      orient;
+    let width, height, orient;
 
+    // ExifReader only working with buffer. Therefore, using arrayBuffer() to change blob -> buffer
     image.arrayBuffer().then((buffer) => {
-      const metadata = ExifReader.load(buffer);
+      // const metadata = ExifReader.load(buffer);
 
-      console.log(metadata);
+      const metadata = ExifReader.load(buffer, { expanded: true });
+
+      // Because of different property between file types.
       if (imageType === "image/png") {
-        colorModel = metadata["Color Type"].description;
-
-        bitDepth = metadata["Bit Depth"].description;
-
-        width = metadata["Image Width"].value;
-        height = metadata["Image Height"].value;
+        const PNG = metadata.pngFile;
+        // This is dimension of the image in px.
+        width = PNG["Image Width"].value;
+        height = PNG["Image Height"].value;
 
         if (width >= height) {
           orient = "landscape";
@@ -211,44 +201,10 @@ function App() {
           orient = "portrait";
         }
       } else if (imageType === "image/jpeg") {
-        if (metadata["Color Space"]) {
-          colorModel = metadata["Color Space"].description;
-        } else {
-          colorModel = metadata["Color Components"].description;
-        }
-
-        bitDepth = metadata["Bits Per Sample"].description;
-
-        if (metadata.Make) {
-          maker = metadata.Make.description;
-        }
-
-        if (metadata.Model) {
-          model = metadata.Model.description;
-        }
-
-        if (metadata.ExposureTime) {
-          exposureTime = metadata.ExposureTime.description;
-        }
-
-        if (metadata.FNumber) {
-          fNumber = metadata.FNumber.description;
-        }
-
-        if (metadata.FocalLength) {
-          focalLength = metadata.FocalLength.description;
-        }
-
-        if (metadata.XResolution) {
-          xResolution = metadata.XResolution.description;
-        }
-
-        if (metadata.YResolution) {
-          yResolution = metadata.YResolution.description;
-        }
-
-        width = metadata["Image Width"].value;
-        height = metadata["Image Height"].value;
+        const JPG = metadata.file;
+        // This is dimension of the image in px.
+        width = JPG["Image Width"].value;
+        height = JPG["Image Height"].value;
 
         if (width >= height) {
           orient = "landscape";
@@ -269,15 +225,6 @@ function App() {
           size: imageSize,
           type: imageType,
           url: newImageURL,
-          colorModel,
-          bitDepth,
-          maker,
-          model,
-          exposureTime,
-          fNumber,
-          focalLength,
-          xResolution,
-          yResolution,
           width,
           height,
           orient,
@@ -298,23 +245,26 @@ function App() {
             "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)",
           ],
           filterPosition: 0,
+          metadata,
         },
       ]);
 
+      // This store only id and name for top bar.
       setAllImageTag([...allImageTag, { id: countImage, name: imageName }]);
 
-      setCurrentImage(countImage);
-      setCountImage(countImage + 1);
+      setCurrentImage(countImage); // This is id of each image.
+      setCountImage(countImage + 1); // This is the head number of image.
 
-      setLoadNewImage(true);
+      setLoadNewImage(true); // This state trigger option bar to generate histogram.
     });
 
     // Only support opacity filter for png
     if (image.type !== "image/png") {
       setDisableOpacity(true);
     }
-  };
+  }
 
+  // This Effect change title of the websites after switch workplace.
   useEffect(() => {
     document.title = title;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -329,7 +279,7 @@ function App() {
     }
   }, []);
 
-  // Event
+  // Trigger when website close with some workplaces till working.
   useEffect(() => {
     if (env === "pro") {
       setShowUnload(
@@ -338,7 +288,7 @@ function App() {
             if (currentImage === -1) {
               event.preventDefault();
             } else {
-              return "Hello world";
+              return "";
             }
           }}
         />
@@ -346,14 +296,18 @@ function App() {
     }
   }, [currentImage, env]);
 
+  // Reload filter when change workplace
   useEffect(() => {
     if (currentImage >= 0) {
       setReloadFilter(true);
+    } else {
+      setSupportFilter(false); // Disable all filter
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentImage]);
 
   return (
+    // This is main theme of the website.
     <GlobalStyles
       color1={color1}
       color2={color2}
@@ -362,7 +316,9 @@ function App() {
       contrast3={contrast3}
       textColor={textColor}
     >
+      {/* This component store all keymap for the website. */}
       <HotKeys keyMap={keyMap} handlers={handlers} className="h-100">
+        {/* This bar show all workplace available and switch between them. */}
         <TopBar
           countImage={countImage}
           currentImage={currentImage}
@@ -383,8 +339,13 @@ function App() {
           preTag={preTag}
           setPreTag={setPreTag}
         />
+
+        {/* This is main area of the website. */}
         <div className="flex main f-space-between">
+          {/* This bar stores some tools to manipulate the image. */}
           <ToolSideBar />
+
+          {/* This screen show the image of workplace. */}
           <MainScreen
             countImage={countImage}
             currentImage={currentImage}
@@ -401,6 +362,8 @@ function App() {
             changeFilter={changeFilter}
             setChangeFilter={setChangeFilter}
           />
+
+          {/* This bar has histogram and sliders. */}
           <OptionSideBar
             countImage={countImage}
             currentImage={currentImage}
@@ -429,16 +392,22 @@ function App() {
             redoFilter={redoFilter}
             setRedoFilter={setRedoFilter}
           />
+
+          {/* This bar store icon of other bars, use to toggle other bars */}
           <OptionMinimal
             showOption={showOption}
             setShowOption={setShowOption}
           />
         </div>
+
+        {/* This bar show most of important information of image such as width, height, etc. */}
         <StatusBar
           currentImage={currentImage}
           allImage={allImage}
           changeFilter={changeFilter}
         />
+
+        {/* This is where image is rendered to URL. */}
         <RenderImage
           countImage={countImage}
           currentImage={currentImage}
@@ -454,6 +423,8 @@ function App() {
           setLoadThumbnail={setLoadThumbnail}
           loadNewImage={loadNewImage}
         />
+
+        {/* This is menu to upload the image. Currently support jpg, png, webp, svg. */}
         <UploadModal
           currentImage={currentImage}
           showUploadModal={showUploadModal}
@@ -463,6 +434,8 @@ function App() {
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
         />
+
+        {/* This is error modal show more information about problem. */}
         <ErrorModal
           showErrorModal={showErrorModal}
           setShowErrorModal={setShowErrorModal}
@@ -475,6 +448,8 @@ function App() {
           contrast3={contrast3}
           textColor={textColor}
         />
+
+        {/* This is menu to choose destination type, name, dimension before render and download. */}
         <ExportModal
           currentImage={currentImage}
           allImage={allImage}
@@ -501,6 +476,8 @@ function App() {
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
         />
+
+        {/* This is setting menu for change config of the website. */}
         <SettingModal
           showSettingModal={showSettingModal}
           setShowSettingModal={setShowSettingModal}
@@ -521,6 +498,8 @@ function App() {
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
         />
+
+        {/* This is color picker menu. */}
         <ColorPickerModal
           showColorPicker={showColorPicker}
           setShowColorPicker={setShowColorPicker}

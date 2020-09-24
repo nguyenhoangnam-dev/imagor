@@ -37,6 +37,8 @@ function ColorPicker(props) {
     if (props.showColorPicker) {
       setOpen(true);
       setBreakPoint(props.currentColor);
+    } else {
+      setOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.showColorPicker]);

@@ -12,6 +12,7 @@ function MainScreen(props) {
   const [filterStyle, setFilterStyle] = useState(
     "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)"
   );
+  const [hideScrollbar, setHideScrollbar] = useState(false);
 
   const scrollRef = useRef(null);
   // const scrollBar = scrollRef.current;
@@ -25,10 +26,14 @@ function MainScreen(props) {
     const current = props.currentImage;
 
     if (current >= 0) {
-      setShowImage(false);
       setImageURL(props.allImage[current].url);
       setImageOrient(props.allImage[current].orient);
       setShowImage(true);
+      setHideScrollbar(true);
+    } else {
+      setShowImage(false);
+      setImageURL("");
+      setHideScrollbar(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,6 +109,7 @@ function MainScreen(props) {
     >
       <Scrollbars
         renderThumbVertical={verticalView}
+        hideTracksWhenNotNeeded={hideScrollbar}
         ref={scrollRef}
         // className={isDown ? "drag-active" : ""}
         // onMouseDown={dragActive}

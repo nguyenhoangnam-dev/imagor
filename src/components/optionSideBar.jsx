@@ -45,6 +45,7 @@ function OptionSideBar(props) {
   const [dataHistogram, setDataHistogram] = useState([{}]);
   // const [changeFilter, setChangeFilter] = useState(false);
 
+  // Reload slider separately
   const [reloadContrast, setReloadContrast] = useState(false);
   const [reloadBrightness, setReloadBrightness] = useState(false);
   const [reloadOpacity, setReloadOpacity] = useState(false);
@@ -57,21 +58,31 @@ function OptionSideBar(props) {
 
   // const [channel, setChannel] = useState("all");
 
-  const submitBlur = (event) => {
+  /**
+   * Set blur value after submit
+   * @param {Object} event Store key when key up trigger
+   */
+  function submitBlur(event) {
     if (event.key === "Enter") {
       props.setChangeFilter(true);
       props.getFilter("blur", blurValue);
     }
-  };
+  }
 
-  const changeBlur = (event) => {
+  /**
+   * Set value after change value in input
+   * @param {Object} event Store value when change value in input trigger
+   */
+  function changeBlur(event) {
     setBlurValue(event.target.value);
-  };
+  }
 
+  // Set height for react-resizable
   useEffect(() => {
     setHeight(window.innerHeight - 55);
   }, []);
 
+  // Trigger after thumbnail's filter URL update.
   useEffect(() => {
     if (props.loadFilterURL) {
       const current = props.currentImage;
@@ -115,6 +126,9 @@ function OptionSideBar(props) {
       } else {
         setDataHistogram(props.allImage[current].histogramObject);
       }
+    } else {
+      setDataHistogram([{}]);
+      setResetValue(true);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -177,8 +191,6 @@ function OptionSideBar(props) {
       props.allImage[current].filterPosition--;
       let filterPosition = props.allImage[current].filterPosition;
 
-      console.log(filterPosition);
-
       const filterHistory = props.allImage[current].filterHistory;
       let currentFilter = filterHistory[filterPosition];
       props.allImage[current].cssFilter = setFilter(currentFilter);
@@ -208,8 +220,6 @@ function OptionSideBar(props) {
     ) {
       props.allImage[current].filterPosition++;
       let filterPosition = props.allImage[current].filterPosition;
-
-      console.log(filterPosition);
 
       const filterHistory = props.allImage[current].filterHistory;
       let currentFilter = filterHistory[filterPosition];
