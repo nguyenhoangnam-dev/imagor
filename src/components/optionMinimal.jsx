@@ -5,6 +5,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 function OptionMinimal(props) {
   return (
     <div className={"option-icon-bar"}>
+      {/* Show option sidebar */}
       <Tooltip title="Open filter panel" placement="left">
         <div
           className={

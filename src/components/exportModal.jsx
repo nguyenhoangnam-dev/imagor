@@ -12,6 +12,10 @@ import { ReactComponent as Close } from "../img/cancel.svg";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import createGlobalStyle from "styled-components";
 
+const getPathFromPublic = (path) => `${process.env.PUBLIC_URL}/${path}`;
+const wwNotificationPath = getPathFromPublic("wwNotification.js");
+const wwNotification = new Worker(wwNotificationPath);
+
 const GlobalStyles = createGlobalStyle.div`
   --color-1: ${(props) => props.color1};
   --color-2: ${(props) => props.color2};
@@ -85,6 +89,7 @@ function ExportModal(props) {
     props.setShowExportModal(false);
   };
 
+  // Check if destination type support quality
   const changeDestType = (event) => {
     const destTypeValue = event.target.value;
     setImageType(destTypeValue);
@@ -96,6 +101,7 @@ function ExportModal(props) {
     }
   };
 
+  // Render output
   const clickRender = (event) => {
     // setRenderImage(true);
 
@@ -113,8 +119,26 @@ function ExportModal(props) {
         clearInterval(progressAnimation);
       };
     }, 40);
+
+    const current = props.currentImage;
+    const image = props.allImage[current];
+
+    wwNotification.postMessage({
+      title: image.name,
+      body:
+        "Click this notification to show image after rendered in full-screen",
+      silent: props.silentNotification,
+      url: image.url,
+    });
+
+    wwNotification.onmessage = function (event) {
+      if (event.data) {
+        window.open(image.url);
+      }
+    };
   };
 
+  // Open export modal
   useEffect(() => {
     if (props.showExportModal) {
       setOpen(true);
@@ -188,6 +212,7 @@ function ExportModal(props) {
               />
             </div>
             <div className="modal-box-content flex f-column">
+              {/* Set image name */}
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image name" placement="top">
@@ -208,6 +233,8 @@ function ExportModal(props) {
                   }}
                 />
               </div>
+
+              {/* Set destination type */}
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image type" placement="top">
@@ -232,6 +259,7 @@ function ExportModal(props) {
                 </FormControl>
               </div>
 
+              {/* Set quality */}
               <SliderQuality
                 filterName={"Quality"}
                 defaultValue={imageQuality}
@@ -242,6 +270,8 @@ function ExportModal(props) {
                 resetValue={false}
                 setResetValue={(value) => {}}
               />
+
+              {/* Set dimension */}
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image dimension" placement="top">
@@ -296,6 +326,8 @@ function ExportModal(props) {
                   />
                 </div>
               </div>
+
+              {/* Change unit */}
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image unit" placement="top">
@@ -320,6 +352,7 @@ function ExportModal(props) {
                 </FormControl>
               </div>
 
+              {/* Preview render image */}
               <div className="flex f-vcenter f-hcenter">
                 <img
                   className={
@@ -331,6 +364,7 @@ function ExportModal(props) {
                 />
               </div>
 
+              {/* Render progress bar */}
               <LinearProgress
                 className={classes.progress}
                 classes={{
@@ -341,14 +375,30 @@ function ExportModal(props) {
                 value={progressFilterValue}
               />
             </div>
-            <div className="modal-box-button flex f-hright">
+            <div className="modal-box-button flex f-space-between">
+              <div className="flex">
+                {/* Render button */}
+                <Button className={classes.button} onClick={clickRender}>
+                  Render
+                </Button>
+
+                {/* Cancel button */}
+                <Button
+                  className={classes.button}
+                  onClick={() => {
+                    setOpen(false);
+                    props.setShowExportModal(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+
+              {/* Download button */}
               <Button className={classes.button}>
                 <a href={props.imageURL} download={props.imageName}>
                   Download
                 </a>
-              </Button>
-              <Button className={classes.button} onClick={clickRender}>
-                Render
               </Button>
             </div>
           </div>

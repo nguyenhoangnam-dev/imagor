@@ -7,6 +7,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import github from "../img/github.svg";
+import information from "../img/information.svg";
 
 const useStyles = makeStyles((theme) => ({
   progress: {
@@ -44,7 +45,7 @@ function StatusBar(props) {
   const [imageWidth, setImageWidth] = useState(null);
   const [imageHeight, setImageHeight] = useState(null);
 
-  // Progress bar animation
+  // Set metadata
   useEffect(() => {
     if (props.currentImage >= 0) {
       setProgressFilterValue(0);
@@ -184,6 +185,7 @@ function StatusBar(props) {
   return (
     <div className="status-bar flex f-vcenter f-space-between">
       <div className="flex f-hleft f-vcenter">
+        {/* Progress bar */}
         <Tooltip title="Progress bar" placement="top">
           <LinearProgress
             className={classes.progress}
@@ -195,28 +197,41 @@ function StatusBar(props) {
             value={progressFilterValue}
           />
         </Tooltip>
+
+        {/* Show image type */}
         <Tooltip title="Image type" placement="top">
           <p>{imageType}</p>
         </Tooltip>
+
+        {/* Show image size */}
         <Tooltip title="Image size" placement="top">
           <p>{imageSize}</p>
         </Tooltip>
+
+        {/* Show image dimension */}
         <Tooltip title="Image dimension" placement="top">
           <p>
             {imageWidth && imageHeight ? imageWidth + " x " + imageHeight : ""}
           </p>
         </Tooltip>
+
+        {/* Show image unit */}
         <Tooltip title="Image unit" placement="top">
           <p>{imageUnit}</p>
         </Tooltip>
+
+        {/* Show color model */}
         <Tooltip title="Image colour model" placement="top">
           <p>{colorModel}</p>
         </Tooltip>
+
+        {/* Show bit depth */}
         <Tooltip title="Image bit depth" placement="top">
           <p>{bitDepth === 0 ? "" : bitDepth}</p>
         </Tooltip>
       </div>
       <div className="status-bar-right flex f-hright f-vcenter">
+        {/* Show maker */}
         {maker ? (
           <Tooltip title="Camera maker" placement="top">
             <p>{maker}</p>
@@ -225,6 +240,7 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Show model */}
         {model ? (
           <Tooltip title="Camera model" placement="top">
             <p>{model}</p>
@@ -233,6 +249,7 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Show f number */}
         {fNumber ? (
           <Tooltip title="F-stop" placement="top">
             <p>{fNumber}</p>
@@ -241,6 +258,7 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Show exposure time */}
         {exposureTime ? (
           <Tooltip title="Exposure time" placement="top">
             <p>{exposureTime}</p>
@@ -249,6 +267,7 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Show focal length */}
         {focalLength ? (
           <Tooltip title="Focal length" placement="top">
             <p>{focalLength}</p>
@@ -257,6 +276,7 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Show resolution of x axis */}
         {xResolution ? (
           <Tooltip title="Horizontal resolution" placement="top">
             <p>{xResolution}</p>
@@ -265,6 +285,7 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Show resolution of y axis */}
         {yResolution ? (
           <Tooltip title="Vertical resolution" placement="top">
             <p>{yResolution}</p>
@@ -273,6 +294,26 @@ function StatusBar(props) {
           ""
         )}
 
+        {/* Open metadata button */}
+        <Tooltip title="Imagor repository">
+          <img
+            src={information}
+            className={
+              props.currentImage >= 0 ? "c-pointer" : "inactive c-default"
+            }
+            style={{ height: 18, marginLeft: 15 }}
+            alt="Open metadata"
+            onClick={(event) => {
+              if (props.currentImage === -1) {
+                event.preventDefault();
+              } else if (props.currentImage >= 0) {
+                props.setShowMetadataModal(true);
+              }
+            }}
+          />
+        </Tooltip>
+
+        {/* Open github profile */}
         <Tooltip title="Imagor repository">
           <a href="https://github.com/nguyenhoangnam-dev/imagor" target="blank">
             <img

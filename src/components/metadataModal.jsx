@@ -41,9 +41,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function MetadataType(props) {
+  return (
+    <>
+      <h2>{props.title}</h2>
+      {Object.entries(props.metaProp).map(([name, description]) => (
+        <p key={name}>
+          {name}: {description.description}
+        </p>
+      ))}
+    </>
+  );
+}
+
 function MetadataModal(props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [metadata, setMetadata] = useState([]);
 
   const handleClose = () => {
     setOpen(false);
@@ -51,13 +65,22 @@ function MetadataModal(props) {
   };
 
   useEffect(() => {
-    if (props.showErrorModal) {
+    if (props.showMetadataModal) {
       setOpen(true);
     } else {
       setOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.showMetadataModal]);
+
+  useEffect(() => {
+    const current = props.currentImage;
+    if (current >= 0) {
+      setMetadata(Object.entries(props.allImage[current].metadata));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.currentImage]);
 
   return (
     <div>
@@ -79,7 +102,7 @@ function MetadataModal(props) {
         >
           <div className="modal-box">
             <div className="modal-box-header flex f-space-between f-vcenter">
-              <h1>Metadata menu</h1>
+              <h2>Metadata menu</h2>
               <Close
                 className="close-tag c-pointer"
                 onClick={() => {
@@ -90,7 +113,13 @@ function MetadataModal(props) {
               />
             </div>
             <div className="modal-box-content metadata-content">
-              <h2>Currently empty</h2>
+              {metadata.map((metaType) => (
+                <MetadataType
+                  key={metaType[0]}
+                  title={metaType[0]}
+                  metaProp={metaType[1]}
+                />
+              ))}
             </div>
             <div className="modal-box-button flex f-hright f-vcenter">
               <Button

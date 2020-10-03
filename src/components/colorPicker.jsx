@@ -33,6 +33,7 @@ function ColorPicker(props) {
     props.setShowColorPicker(false);
   };
 
+  // Open color picker
   useEffect(() => {
     if (props.showColorPicker) {
       setOpen(true);

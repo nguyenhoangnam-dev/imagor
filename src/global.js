@@ -1,7 +1,10 @@
+// Check valid image type
 export const imagePattern = new RegExp("image/(png|jpeg|webp|bmp|svg\\+xml)");
 
+// Check hex color
 export const hexPattern = new RegExp("^#([0-9a-f]{3}|[0-9a-f]{6})$", "i");
 
+// Check 1 - 100
 export const percentPattern = new RegExp("^([0-9]|[1-9][0-9]|[100])$");
 
 // Check browser for support feature.

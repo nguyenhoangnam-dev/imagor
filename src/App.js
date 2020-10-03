@@ -16,6 +16,7 @@ import ExportModal from "./components/exportModal";
 import SettingModal from "./components/settingModal";
 import UploadModal from "./components/uploadModal";
 import ColorPickerModal from "./components/colorPicker";
+import MetadataModal from "./components/metadataModal";
 
 import { Beforeunload } from "react-beforeunload";
 
@@ -36,6 +37,8 @@ const GlobalStyles = createGlobalStyle.div`
   --contrast-3: ${(props) => props.contrast3};
   --text-color: ${(props) => props.textColor};
 `;
+
+Notification.requestPermission().then(function (permission) {});
 
 function App() {
   const appName = "Imagor"; // Name of the project may change in the future.
@@ -71,12 +74,14 @@ function App() {
   const [showSettingModal, setShowSettingModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showMetadataModal, setShowMetadataModal] = useState(false);
 
   // State of load events
   const [loadFilterURL, setLoadFilterURL] = useState(false);
   const [loadExport, setLoadExport] = useState(false);
   const [loadThumbnail, setLoadThumbnail] = useState(false);
   const [loadNewImage, setLoadNewImage] = useState(false);
+  const [loadIcon, setLoadIcon] = useState(false);
 
   // State of tags
   const [closeTag, setCloseTag] = useState(false);
@@ -87,6 +92,8 @@ function App() {
   const [showUnload, setShowUnload] = useState(null);
   const [env, setEnv] = useState(null);
   const [currentColor, setCurrentColor] = useState(null);
+  const [showNotification, setShowNotification] = useState(true);
+  const [silentNotification, setSilentNotification] = useState(false);
 
   // Theme
   const [color1, setColor1] = useState("#f4eeff");
@@ -109,6 +116,7 @@ function App() {
     UNDO_FILTER: "alt+z",
     REDO_FILTER: "alt+shift+z",
     CLOSE_MODAL: "alt+x",
+    OPEN_METADATA: "alt+i",
   };
 
   // Handle hotkey event
@@ -154,7 +162,12 @@ function App() {
         setShowUploadModal(false);
       } else if (showColorPicker) {
         setShowColorPicker(false);
+      } else if (showMetadataModal) {
+        setShowMetadataModal(false);
       }
+    },
+    OPEN_METADATA: (event) => {
+      setShowMetadataModal(true);
     },
   };
 
@@ -250,7 +263,17 @@ function App() {
       ]);
 
       // This store only id and name for top bar.
-      setAllImageTag([...allImageTag, { id: countImage, name: imageName }]);
+      setAllImageTag([
+        ...allImageTag,
+        {
+          id: countImage,
+          name: imageName,
+          icon: "",
+          loadIcon: false,
+          thumbnail: "",
+          loadThumbnail: false,
+        },
+      ]);
 
       setCurrentImage(countImage); // This is id of each image.
       setCountImage(countImage + 1); // This is the head number of image.
@@ -332,6 +355,9 @@ function App() {
           setShowSettingModal={setShowSettingModal}
           showUploadModal={showUploadModal}
           setShowUploadModal={setShowUploadModal}
+          loadIcon={loadIcon}
+          setLoadIcon={setLoadIcon}
+          loadThumbnail={loadThumbnail}
           closeTag={closeTag}
           setCloseTag={setCloseTag}
           nextTag={nextTag}
@@ -405,6 +431,7 @@ function App() {
           currentImage={currentImage}
           allImage={allImage}
           changeFilter={changeFilter}
+          setShowMetadataModal={setShowMetadataModal}
         />
 
         {/* This is where image is rendered to URL. */}
@@ -412,6 +439,7 @@ function App() {
           countImage={countImage}
           currentImage={currentImage}
           allImage={allImage}
+          allImageTag={allImageTag}
           changeFilter={changeFilter}
           setChangeFilter={setChangeFilter}
           resetFilter={resetFilter}
@@ -422,11 +450,14 @@ function App() {
           setLoadExport={setLoadExport}
           setLoadThumbnail={setLoadThumbnail}
           loadNewImage={loadNewImage}
+          showExportModal={showExportModal}
+          setLoadIcon={setLoadIcon}
         />
 
         {/* This is menu to upload the image. Currently support jpg, png, webp, svg. */}
         <UploadModal
           currentImage={currentImage}
+          allImageTag={allImageTag}
           showUploadModal={showUploadModal}
           setShowUploadModal={setShowUploadModal}
           handleFiles={handleFiles}
@@ -475,6 +506,8 @@ function App() {
           setShowErrorModal={setShowErrorModal}
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
+          showNotification={showNotification}
+          silentNotification={silentNotification}
         />
 
         {/* This is setting menu for change config of the website. */}
@@ -497,6 +530,10 @@ function App() {
           setShowErrorModal={setShowErrorModal}
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
+          showNotification={showNotification}
+          setShowNotification={setShowNotification}
+          silentNotification={silentNotification}
+          setSilentNotification={setSilentNotification}
         />
 
         {/* This is color picker menu. */}
@@ -505,6 +542,18 @@ function App() {
           setShowColorPicker={setShowColorPicker}
           currentColor={currentColor}
           setCurrentColor={setCurrentColor}
+        />
+
+        {/* Show all metadata of image */}
+        <MetadataModal
+          allImage={allImage}
+          currentImage={currentImage}
+          showMetadataModal={showMetadataModal}
+          setShowMetadataModal={setShowMetadataModal}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          color4={color4}
         />
       </HotKeys>
       {showUnload}

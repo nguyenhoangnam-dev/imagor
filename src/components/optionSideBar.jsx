@@ -56,6 +56,11 @@ function OptionSideBar(props) {
 
   const [invalidInput, setInvalidInput] = useState(false);
 
+  const [showRedChannel, setShowRedChannel] = useState(false);
+  const [showGreenChannel, setShowGreenChannel] = useState(false);
+  const [showBlueChannel, setShowBlueChannel] = useState(false);
+  const [showGreyChannel, setShowGreyChannel] = useState(false);
+
   // const [channel, setChannel] = useState("all");
 
   /**
@@ -99,6 +104,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadFilterURL]);
 
+  // Load image to color histogram after upload new image
   useEffect(() => {
     const current = props.currentImage;
 
@@ -134,6 +140,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadThumbnail, props.currentImage]);
 
+  // Load image to color histogram after update filter
   useEffect(() => {
     const current = props.currentImage;
 
@@ -162,6 +169,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.loadFilterURL]);
 
+  // Reset all slider after load new image
   useEffect(() => {
     if (props.reloadFilter) {
       const current = props.currentImage;
@@ -185,6 +193,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.reloadFilter]);
 
+  // Reset all slider after undo filter
   useEffect(() => {
     const current = props.currentImage;
     if (props.undoFilter && props.allImage[current].filterPosition >= 0) {
@@ -211,6 +220,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.undoFilter]);
 
+  // Reset all slider after redo filter
   useEffect(() => {
     const current = props.currentImage;
     if (
@@ -240,6 +250,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.redoFilter]);
 
+  // Show error when input invalid number
   useEffect(() => {
     if (invalidInput) {
       props.setErrorTitle("Error");
@@ -251,6 +262,7 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invalidInput]);
 
+  // Store histogram
   wwHistogram.onmessage = function (event) {
     const current = props.currentImage;
     props.allImage[current].loadMeta = true;
@@ -270,6 +282,7 @@ function OptionSideBar(props) {
       }`}
     >
       <div className="filter-box w-100 flex f-column f-vcenter">
+        {/* Color histogram */}
         <AreaChart
           width={180}
           height={150}
@@ -290,9 +303,10 @@ function OptionSideBar(props) {
           <Area
             type="monotone"
             dataKey="red"
-            stroke="#ff0000"
+            // stroke="#ff0000"
             fillOpacity={1}
             fill="#ff0000"
+            hide={showRedChannel}
           />
           <Area
             type="monotone"
@@ -300,6 +314,7 @@ function OptionSideBar(props) {
             stroke="#00ff00"
             fillOpacity={1}
             fill="#00ff00"
+            hide={showGreenChannel}
           />
           <Area
             type="monotone"
@@ -307,6 +322,7 @@ function OptionSideBar(props) {
             stroke="#0000ff"
             fillOpacity={1}
             fill="#0000ff"
+            hide={showBlueChannel}
           />
           <Area
             type="monotone"
@@ -314,6 +330,7 @@ function OptionSideBar(props) {
             stroke="#00ffff"
             fillOpacity={1}
             fill="#00ffff"
+            hide={showGreenChannel || showBlueChannel}
           />
           <Area
             type="monotone"
@@ -321,6 +338,7 @@ function OptionSideBar(props) {
             stroke="#ff00ff"
             fillOpacity={1}
             fill="#ff00ff"
+            hide={showRedChannel || showBlueChannel}
           />
           <Area
             type="monotone"
@@ -328,6 +346,7 @@ function OptionSideBar(props) {
             stroke="#ffff00"
             fillOpacity={1}
             fill="#ffff00"
+            hide={showRedChannel || showGreenChannel}
           />
           <Area
             type="monotone"
@@ -335,15 +354,65 @@ function OptionSideBar(props) {
             stroke="#bbbbbb"
             fillOpacity={1}
             fill="#bbbbbb"
+            hide={
+              (showRedChannel || showGreenChannel || showBlueChannel) &&
+              showGreyChannel
+            }
           />
         </AreaChart>
-        {/* <select>
-          <option value="all">all</option>
-          <option value="red">red</option>
-          <option value="green">green</option>
-          <option value="blue">blue</option>
-          <option value="grey">grey</option>
-        </select> */}
+        <div
+          className="flex f-space-between"
+          style={{
+            minWidth: 180,
+            width: "calc(100% - 44px)",
+            maxWidth: 300,
+            marginBottom: 10,
+          }}
+        >
+          <p>Channel</p>
+          <select
+            style={{ backgroundColor: "var(--color-1)" }}
+            className="c-pointer"
+            onChange={(event) => {
+              const channel = event.target.value;
+
+              if (channel === "all") {
+                setShowRedChannel(false);
+                setShowGreenChannel(false);
+                setShowBlueChannel(false);
+                setShowGreyChannel(true);
+              } else if (channel === "red") {
+                setShowRedChannel(false);
+                setShowGreenChannel(true);
+                setShowBlueChannel(true);
+                setShowGreyChannel(true);
+              } else if (channel === "blue") {
+                setShowRedChannel(true);
+                setShowGreenChannel(true);
+                setShowBlueChannel(false);
+                setShowGreyChannel(true);
+              } else if (channel === "green") {
+                setShowRedChannel(true);
+                setShowGreenChannel(false);
+                setShowBlueChannel(true);
+                setShowGreyChannel(true);
+              } else if (channel === "grey") {
+                setShowGreyChannel(false);
+                setShowRedChannel(true);
+                setShowGreenChannel(true);
+                setShowBlueChannel(true);
+              }
+            }}
+          >
+            <option value="all">all</option>
+            <option value="red">red</option>
+            <option value="green">green</option>
+            <option value="blue">blue</option>
+            <option value="grey">grey</option>
+          </select>
+        </div>
+
+        {/* Contrast filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Contrast"}
@@ -362,6 +431,8 @@ function OptionSideBar(props) {
           setInvalidInput={setInvalidInput}
           tooltipText="Difference in luminance or colour that makes an object (or its representation in an image or display) distinguishable."
         />
+
+        {/* Brightness filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Brightness"}
@@ -380,6 +451,8 @@ function OptionSideBar(props) {
           setInvalidInput={setInvalidInput}
           tooltipText="An attribute of visual perception in which a source appears to be radiating or reflecting light."
         />
+
+        {/* Opacity filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Opacity"}
@@ -399,6 +472,8 @@ function OptionSideBar(props) {
           tooltipText="Describes the transparency level, it ranges from 0 to 1."
           tooltipReason="Image type not support opacity filter."
         />
+
+        {/* Saturate filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Saturate"}
@@ -417,6 +492,8 @@ function OptionSideBar(props) {
           setInvalidInput={setInvalidInput}
           tooltipText="Describes the depth or intensity of color present within an image."
         />
+
+        {/* Grayscale filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Grayscale"}
@@ -435,6 +512,8 @@ function OptionSideBar(props) {
           setInvalidInput={setInvalidInput}
           tooltipText="The value of each pixel is a single sample representing only an amount of light."
         />
+
+        {/* Invert filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Invert"}
@@ -453,6 +532,8 @@ function OptionSideBar(props) {
           setInvalidInput={setInvalidInput}
           tooltipText="Change all pixel color to the opposite."
         />
+
+        {/* Sepia filter */}
         <SliderFilter
           className="mt-15"
           filterName={"Sepia"}
@@ -498,8 +579,9 @@ function OptionSideBar(props) {
           <Button
             className={classes.button}
             onClick={() => {
-              setResetValue(true);
               props.allImage[props.currentImage].cssFilter.reset = true;
+              setResetValue(true);
+
               props.setChangeFilter(true);
               props.setResetFilter(true);
             }}

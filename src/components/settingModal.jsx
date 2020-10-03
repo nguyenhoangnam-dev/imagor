@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
+import Switch from "@material-ui/core/Switch";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import { ReactComponent as Close } from "../img/cancel.svg";
 import createGlobalStyle from "styled-components";
@@ -56,6 +59,7 @@ function InputColor(props) {
     setColorValue(text);
   };
 
+  // Set global color when enter
   const enterInputFilter = (event) => {
     if (event.key === "Enter") {
       if (hexPattern.test(colorValue)) {
@@ -70,6 +74,7 @@ function InputColor(props) {
     }
   };
 
+  // Set color can text color in input
   useEffect(() => {
     if (props.colorValue) {
       setColorValue(props.colorValue);
@@ -81,6 +86,7 @@ function InputColor(props) {
 
   return (
     <>
+      {/* Input color value */}
       <input
         className={
           "setting-input-color " + (props.disable ? "c-not-allowed" : "")
@@ -104,14 +110,21 @@ function InputColor(props) {
           marginLeft: 10,
         }}
       />
-      <img
-        src={picker}
-        onClick={() => {
-          props.setColor(true);
-        }}
-        style={{ height: 15, marginLeft: 5, cursor: "pointer" }}
-        alt="Color picker"
-      />
+
+      {/* Open color picker */}
+      <Tooltip
+        title="Open color picker modal to choose color"
+        placement="right"
+      >
+        <img
+          src={picker}
+          onClick={() => {
+            props.setColor(true);
+          }}
+          style={{ height: 15, marginLeft: 5, cursor: "pointer" }}
+          alt="Color picker"
+        />
+      </Tooltip>
     </>
   );
 }
@@ -132,14 +145,31 @@ function SettingModal(props) {
 
   const [invalidInput, setInvalidInput] = useState(false);
 
+  const [allValue, setAllValue] = useState({
+    showNotification: true,
+    silentNotification: false,
+  });
+
   const handleClose = () => {
     setOpen(false);
     props.setShowSettingModal(false);
   };
 
+  const changeValue = (event) => {
+    setAllValue({ ...allValue, [event.target.name]: event.target.checked });
+  };
+
+  // Store breakpoint of setting for reset or cancel
   useEffect(() => {
     if (props.showSettingModal) {
-      setBreakPoint([props.color1, props.color2, props.color3, props.color4]);
+      setBreakPoint([
+        props.color1,
+        props.color2,
+        props.color3,
+        props.color4,
+        props.showNotification,
+        props.silentNotification,
+      ]);
       setOpen(true);
     } else {
       setOpen(false);
@@ -147,6 +177,7 @@ function SettingModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.showSettingModal]);
 
+  // Set color 1 in global
   useEffect(() => {
     if (color1) {
       props.setShowColorPicker(true);
@@ -156,6 +187,7 @@ function SettingModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [color1]);
 
+  // Set color 2 in global
   useEffect(() => {
     if (color2) {
       props.setShowColorPicker(true);
@@ -165,6 +197,7 @@ function SettingModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [color2]);
 
+  // Set color 3 in global
   useEffect(() => {
     if (color3) {
       props.setShowColorPicker(true);
@@ -174,6 +207,7 @@ function SettingModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [color3]);
 
+  // Set color 4 in global
   useEffect(() => {
     if (color4) {
       props.setShowColorPicker(true);
@@ -183,6 +217,7 @@ function SettingModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [color4]);
 
+  // Set color from color picker
   useEffect(() => {
     if (props.currentColor) {
       const currentColor = props.currentColor;
@@ -203,6 +238,7 @@ function SettingModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentColor]);
 
+  // Close color picker
   useEffect(() => {
     if (!props.showColorPicker) {
       if (color1) {
@@ -269,6 +305,8 @@ function SettingModal(props) {
             </div>
             <div className="modal-box-content">
               <h2>Theme</h2>
+
+              {/* Set color 1 */}
               <div className="flex f-vcenter">
                 <p>Color 1:</p>
                 <InputColor
@@ -279,6 +317,8 @@ function SettingModal(props) {
                   setInvalidInput={setInvalidInput}
                 />
               </div>
+
+              {/* Set color 2 */}
               <div className="flex">
                 <p>Color 2:</p>
                 <InputColor
@@ -289,6 +329,8 @@ function SettingModal(props) {
                   setInvalidInput={setInvalidInput}
                 />
               </div>
+
+              {/* Set color 3 */}
               <div className="flex">
                 <p>Color 3:</p>
                 <InputColor
@@ -299,6 +341,8 @@ function SettingModal(props) {
                   setInvalidInput={setInvalidInput}
                 />
               </div>
+
+              {/* Set color 4 */}
               <div className="flex">
                 <p>Color 4:</p>
                 <InputColor
@@ -309,18 +353,61 @@ function SettingModal(props) {
                   setInvalidInput={setInvalidInput}
                 />
               </div>
+
+              <h2>Notification</h2>
+
+              {/* Set show notification */}
+              <div className="flex f-vcenter">
+                <Tooltip
+                  title="This switch turn on or turn off notification but also need permission from browser"
+                  placement="bottom"
+                >
+                  <p className="c-pointer">Show notification:</p>
+                </Tooltip>
+
+                <Switch
+                  checked={allValue.showNotification}
+                  onChange={changeValue}
+                  name="showNotification"
+                  color="primary"
+                  inputProps={{ "aria-label": "Show notification" }}
+                />
+              </div>
+
+              {/* Set silent notification */}
+              <div className="flex f-vcenter">
+                <Tooltip
+                  title="This switch turn on or turn off sound on notification but also need permission from OS"
+                  placement="bottom"
+                >
+                  <p className="c-pointer">Silent notification:</p>
+                </Tooltip>
+
+                <Switch
+                  checked={allValue.silentNotification}
+                  onChange={changeValue}
+                  name="silentNotification"
+                  color="primary"
+                  inputProps={{ "aria-label": "Silent notification" }}
+                />
+              </div>
             </div>
             <div className="modal-box-button flex f-vcenter f-space-between">
               <div>
+                {/* Apply button */}
                 <Button
                   className={classes.button}
                   onClick={() => {
                     setOpen(false);
                     props.setShowSettingModal(false);
+                    props.setShowNotification(allValue.showNotification);
+                    props.setSilentNotification(allValue.silentNotification);
                   }}
                 >
                   Apply
                 </Button>
+
+                {/* Cancel button */}
                 <Button
                   className={classes.button}
                   onClick={() => {
@@ -329,12 +416,16 @@ function SettingModal(props) {
                     props.setColor2(breakPoint[1]);
                     props.setColor3(breakPoint[2]);
                     props.setColor4(breakPoint[3]);
+                    props.setShowNotification(breakPoint[4]);
+                    props.setSilentNotification(breakPoint[5]);
                     props.setShowSettingModal(false);
                   }}
                 >
                   Cancel
                 </Button>
               </div>
+
+              {/* Reset button */}
               <div>
                 <Button
                   className={classes.button}

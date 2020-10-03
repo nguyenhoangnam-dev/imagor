@@ -1,10 +1,7 @@
-import React, { Component } from "react";
+import React from "react";
 
-class ToolSideBar extends Component {
-  state = {};
-  render() {
-    return <div className="tool-sidebar"></div>;
-  }
+function ToolSideBar(props) {
+  return <div className="tool-sidebar"></div>;
 }
 
 export default ToolSideBar;

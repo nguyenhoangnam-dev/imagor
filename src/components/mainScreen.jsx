@@ -20,6 +20,7 @@ function MainScreen(props) {
   const screenRef = useRef(null);
   const screen = screenRef.current;
 
+  // Set orient and url of image
   useEffect(() => {
     // setShowImage(false);
 
@@ -39,9 +40,11 @@ function MainScreen(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentImage]);
 
+  // Set filter style from object
   useEffect(() => {
     if (props.currentImage >= 0 && props.changeFilter) {
       const current = props.currentImage;
+
       if (props.allImage[current].cssFilter.reset) {
         setFilterStyle("unset");
 
@@ -107,6 +110,7 @@ function MainScreen(props) {
         (props.showOption ? "has-option-layout " : "")
       }
     >
+      {/* Custom scrollbar */}
       <Scrollbars
         renderThumbVertical={verticalView}
         hideTracksWhenNotNeeded={hideScrollbar}

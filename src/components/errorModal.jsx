@@ -50,6 +50,7 @@ function ErrorModal(props) {
     props.setShowErrorModal(false);
   };
 
+  // Show error modal
   useEffect(() => {
     if (props.showErrorModal) {
       setOpen(true);
@@ -78,6 +79,7 @@ function ErrorModal(props) {
           textColor={props.textColor}
         >
           <div className="error-box">
+            {/* Error header */}
             <div className="error-box-header flex f-space-between f-vcenter">
               <h1>{props.errorTitle}</h1>
               <Close
@@ -89,10 +91,14 @@ function ErrorModal(props) {
                 style={{ fill: "white" }}
               />
             </div>
+
+            {/* Error content */}
             <div className="error-box-content">
               <p>{props.errorMessage}</p>
             </div>
+
             <div className="error-box-button flex f-hright f-vcenter">
+              {/* Close button */}
               <Button
                 className={classes.button}
                 onClick={() => {

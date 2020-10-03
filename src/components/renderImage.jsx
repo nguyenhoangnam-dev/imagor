@@ -20,13 +20,44 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 }
 
 function RenderImage(props) {
-  const canvasRef = useRef(null);
+  const full = useRef(null);
   const imageRef = useRef(null);
+
+  const thumbnail = useRef(null);
+  const smallThumbnail = useRef(null);
 
   const tempImage = imageRef.current;
   const [imageURL, setImageURL] = useState("");
   const [loadImage, setLoadImage] = useState(false);
   //const [imageFilter, setImageFilter] = useState(resetFilter);
+
+  const renderImage = (canvas, imageType, type) => {
+    canvas.toBlob(function (blob) {
+      if (blob) {
+        // props.allImage[props.currentImage].size = roundBytes(blob.size);
+        const current = props.currentImage;
+        if (type === "thumbnail") {
+          const url = URL.createObjectURL(blob);
+
+          props.allImage[current].filterURL = url;
+          props.allImageTag[current].thumbnail = url;
+
+          props.allImageTag[current].loadThumbnail = true;
+
+          props.setLoadFilterURL(true);
+
+          if (props.loadNewImage) {
+            props.setLoadThumbnail(true);
+          }
+        } else if (type === "icon") {
+          props.allImageTag[current].icon = URL.createObjectURL(blob);
+
+          props.allImageTag[current].loadIcon = true;
+          props.setLoadIcon(true);
+        }
+      }
+    }, imageType);
+  };
 
   useEffect(() => {
     const current = props.currentImage;
@@ -40,25 +71,8 @@ function RenderImage(props) {
 
   // Handle filter event
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = thumbnail.current;
     const context = canvas.getContext("2d");
-
-    const renderImage = (canvas, imageType) => {
-      canvas.toBlob(function (blob) {
-        if (blob) {
-          // props.allImage[props.currentImage].size = roundBytes(blob.size);
-          props.allImage[props.currentImage].filterURL = URL.createObjectURL(
-            blob
-          );
-
-          props.setLoadFilterURL(true);
-
-          if (props.loadNewImage) {
-            props.setLoadThumbnail(true);
-          }
-        }
-      }, imageType);
-    };
 
     const current = props.currentImage;
     if (loadImage || props.doneFilter || props.resetFilter) {
@@ -69,7 +83,7 @@ function RenderImage(props) {
 
         if (imageWidth >= 1500) {
           thumbnailWidth = 1500;
-          thumbnailHeight = (thumbnailWidth * imageWidth) / imageHeight;
+          thumbnailHeight = (thumbnailWidth * imageHeight) / imageWidth;
         } else {
           thumbnailWidth = imageWidth;
           thumbnailHeight = imageHeight;
@@ -106,7 +120,7 @@ function RenderImage(props) {
         }
 
         context.drawImage(tempImage, 0, 0, thumbnailWidth, thumbnailHeight);
-        renderImage(canvas, props.allImage[current].type);
+        renderImage(canvas, props.allImage[current].type, "thumbnail");
       }
     }
 
@@ -117,13 +131,63 @@ function RenderImage(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.changeFilter, props.resetFilter, props.doneFilter, loadImage]);
 
+  // Load small thumbnail
+  useEffect(() => {
+    if (props.loadNewImage) {
+      const canvas = thumbnail.current;
+      const context = canvas.getContext("2d");
+
+      const current = props.currentImage;
+      if (loadImage && current >= 0) {
+        let imageWidth = props.allImage[current].width;
+        let imageHeight = props.allImage[current].height;
+        let orient = props.allImage[current].orient;
+        let thumbnailWidth, thumbnailHeight;
+
+        if (orient === "landscape") {
+          if (imageHeight >= 40) {
+            thumbnailHeight = 40;
+            thumbnailWidth = (thumbnailHeight * imageWidth) / imageHeight;
+          } else {
+            thumbnailWidth = imageWidth;
+            thumbnailHeight = imageHeight;
+          }
+        } else {
+          if (imageWidth >= 40) {
+            thumbnailWidth = 40;
+            thumbnailHeight = (thumbnailWidth * imageHeight) / imageWidth;
+          } else {
+            thumbnailWidth = imageWidth;
+            thumbnailHeight = imageHeight;
+          }
+        }
+
+        canvas.width = thumbnailWidth;
+        canvas.height = thumbnailHeight;
+
+        context.drawImage(tempImage, 0, 0, thumbnailWidth, thumbnailHeight);
+        renderImage(canvas, props.allImage[current].type, "icon");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadImage]);
+
+  // Render full image
+  useEffect(() => {
+    if (props.showExportModal) {
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.showExportModal]);
+
   const handleLoad = (event) => {
     setLoadImage(true);
   };
 
   return (
     <>
-      <canvas ref={canvasRef} style={{ display: "none" }} />
+      <canvas ref={thumbnail} style={{ display: "none" }} />
+      <canvas ref={full} style={{ display: "none" }} />
+      <canvas ref={smallThumbnail} style={{ display: "none" }} />
       <img
         ref={imageRef}
         src={imageURL}
