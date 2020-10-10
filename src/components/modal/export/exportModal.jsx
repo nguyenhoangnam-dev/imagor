@@ -6,8 +6,9 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
-import SliderQuality from "./slider";
-import { ReactComponent as Close } from "../img/cancel.svg";
+import SliderQuality from "../../common/slider";
+import { ReactComponent as Close } from "../../../img/cancel.svg";
+import { roundBytes } from "../../../helper/helper";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
 import createGlobalStyle from "styled-components";
@@ -83,6 +84,7 @@ function ExportModal(props) {
   const [imageUnit, setImageUnit] = useState(null);
   const [imageURL, setImageURL] = useState(null);
   const [imageOrient, setImageOrient] = useState(null);
+  const [imageSize, setImageSize] = useState(null);
 
   const handleClose = () => {
     setOpen(false);
@@ -95,14 +97,28 @@ function ExportModal(props) {
     setImageType(destTypeValue);
 
     if (destTypeValue === "png" || destTypeValue === "bmp") {
+      setImageQuality(100);
       setSupportQuality(false);
     } else {
       setSupportQuality(true);
+      if (destTypeValue === "jpg") {
+        setImageQuality(92);
+      } else if (destTypeValue === "webp") {
+        setImageQuality(80);
+      }
     }
   };
 
   // Render output
   const clickRender = (event) => {
+    props.setExportSetting({
+      type: imageType,
+      quality: imageQuality,
+      width: imageWidth,
+      height: imageHeight,
+    });
+
+    props.setRenderImage(true);
     // setRenderImage(true);
 
     const progressAnimation = setInterval(function () {
@@ -120,20 +136,9 @@ function ExportModal(props) {
       };
     }, 40);
 
-    const current = props.currentImage;
-    const image = props.allImage[current];
-
-    wwNotification.postMessage({
-      title: image.name,
-      body:
-        "Click this notification to show image after rendered in full-screen",
-      silent: props.silentNotification,
-      url: image.url,
-    });
-
     wwNotification.onmessage = function (event) {
       if (event.data) {
-        window.open(image.url);
+        window.open(imageURL);
       }
     };
   };
@@ -175,11 +180,30 @@ function ExportModal(props) {
       setImageHeight(props.allImage[current].height);
       setImageUnit(props.allImage[current].unit);
       setImageOrient(props.allImage[current].orient);
-      setImageURL(props.allImage[current].url);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentImage]);
+
+  useEffect(() => {
+    if (props.loadUrl) {
+      const current = props.currentImage;
+
+      setImageURL(props.allImage[current].renderUrl);
+      setImageSize(roundBytes(props.allImage[current].renderSize));
+
+      wwNotification.postMessage({
+        title: imageName,
+        body:
+          "Click this notification to show image after rendered in full-screen",
+        silent: props.silentNotification,
+        url: props.allImage[current].renderUrl,
+      });
+
+      props.setLoadUrl(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.loadUrl]);
 
   return (
     <div>
@@ -234,6 +258,16 @@ function ExportModal(props) {
                 />
               </div>
 
+              {/* Set image size */}
+              <div className="flex f-vcenter mb-15">
+                <div style={{ width: 90 }}>
+                  <Tooltip title="Image name" placement="top">
+                    <p style={{ display: "inline-block" }}>Size</p>
+                  </Tooltip>
+                </div>
+                <p>{imageSize}</p>
+              </div>
+
               {/* Set destination type */}
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
@@ -265,7 +299,7 @@ function ExportModal(props) {
                 defaultValue={imageQuality}
                 disable={!supportQuality}
                 getValue={(value) => {
-                  // setQuality(value);
+                  setImageQuality(value);
                 }}
                 resetValue={false}
                 setResetValue={(value) => {}}
@@ -396,7 +430,7 @@ function ExportModal(props) {
 
               {/* Download button */}
               <Button className={classes.button}>
-                <a href={props.imageURL} download={props.imageName}>
+                <a href={imageURL} download={imageName}>
                   Download
                 </a>
               </Button>

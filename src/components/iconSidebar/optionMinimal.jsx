@@ -1,5 +1,5 @@
 import React from "react";
-import { ReactComponent as FilterLogo } from "../img/adjust.svg";
+import { ReactComponent as FilterLogo } from "../../img/adjust.svg";
 import Tooltip from "@material-ui/core/Tooltip";
 
 function OptionMinimal(props) {

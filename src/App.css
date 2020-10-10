@@ -300,28 +300,6 @@ body {
   padding: 25px;
 }
 
-/* .input-filter-percent {
-  width: 30px;
-  text-align: end;
-  border: none;
-  font-size: 15px;
-  padding-right: 3px;
-  cursor: pointer;
-  box-sizing: content-box;
-  height: 15px;
-}
-
-.input-filter-percent:disabled {
-  background-color: white;
-  color: #a7a7a7;
-}
-
-.input-filter-percent:focus {
-  border: none;
-  outline: none;
-  border-bottom: 2px solid var(--color-4);
-} */
-
 /* Error modal */
 
 .error-box {
@@ -354,4 +332,128 @@ body {
 /* Setting modal */
 .setting-input-color:focus {
   outline: none;
+}
+
+.small-layout {
+  width: 150px;
+  height: 80px;
+  border: 1px solid black;
+  box-sizing: content-box;
+}
+
+.small-top-bar {
+  width: 150px;
+  height: 5px;
+  border-bottom: 1px solid var(--color-4);
+  background-color: var(--color-1);
+}
+
+.small-main {
+  width: 150px;
+  height: 70px;
+}
+
+.small-tool-bar {
+  width: 8px;
+  height: 70px;
+  background-color: var(--color-1);
+}
+
+.small-main-screen {
+  width: 110px;
+  height: 70px;
+  border-left: 1px solid var(--color-4);
+  border-right: 1px solid var(--color-4);
+  background-color: white;
+}
+
+.small-option-sidebar {
+  width: 24px;
+  height: 70px;
+  background-color: var(--color-1);
+}
+
+.small-minimal-sidebar {
+  width: 8px;
+  height: 70px;
+  background-color: var(--color-2);
+}
+
+.small-footer {
+  width: 150px;
+  height: 5px;
+  border-top: 1px solid var(--color-4);
+  background-color: var(--color-3);
+}
+
+/* Color picker */
+.color-picker {
+  background-color: var(--color-1);
+}
+
+.saturation {
+  width: 256px;
+  height: 256px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hue {
+  height: 256px;
+  width: 20px;
+  position: relative;
+  margin-left: 15px;
+}
+
+.RGBwrap {
+  position: relative;
+}
+
+.RGBinput {
+  margin-left: 40%;
+  width: 40%;
+  height: 18px;
+  border: 1px solid #888888;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0 #ececec;
+  margin-bottom: 5px;
+  font-size: 13px;
+  padding-left: 3px;
+  margin-right: 10px;
+}
+
+.RGBlabel {
+  left: 0px;
+  top: 0px;
+  width: 34px;
+  text-transform: uppercase;
+  font-size: 13px;
+  height: 18px;
+  line-height: 22px;
+  position: absolute;
+}
+
+.HEXwrap {
+  position: relative;
+}
+
+.HEXinput {
+  margin-left: 20%;
+  width: 80%;
+  height: 18px;
+  border: 1px solid #888888;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 0 #ececec;
+  margin-bottom: 6px;
+  font-size: 13px;
+  padding-left: 3px;
+}
+
+.HEXlabel {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 14px;
+  text-transform: uppercase;
+  font-size: 13px;
+  height: 18px;
+  line-height: 22px;
 }

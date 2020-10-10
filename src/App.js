@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { HotKeys } from "react-hotkeys";
 
-import { notCanvasFilter } from "./global";
+import { notCanvasFilter } from "./helper/global";
 
-import TopBar from "./components/topBar";
-import ToolSideBar from "./components/toolSideBar";
-import MainScreen from "./components/mainScreen";
-import OptionSideBar from "./components/optionSideBar";
-import StatusBar from "./components/statusBar";
-import RenderImage from "./components/renderImage";
-import OptionMinimal from "./components/optionMinimal";
+import {
+  TopBar,
+  ToolSideBar,
+  MainScreen,
+  OptionSideBar,
+  OptionMinimal,
+  StatusBar,
+  RenderImage,
+} from "./layout";
 
-import ErrorModal from "./components/errorModal";
-import ExportModal from "./components/exportModal";
-import SettingModal from "./components/settingModal";
-import UploadModal from "./components/uploadModal";
-import ColorPickerModal from "./components/colorPicker";
-import MetadataModal from "./components/metadataModal";
+import {
+  ErrorModal,
+  ExportModal,
+  SettingModal,
+  UploadModal,
+  ColorPickerModal,
+  MetadataModal,
+} from "./modal";
 
 import { Beforeunload } from "react-beforeunload";
 
@@ -82,6 +86,7 @@ function App() {
   const [loadThumbnail, setLoadThumbnail] = useState(false);
   const [loadNewImage, setLoadNewImage] = useState(false);
   const [loadIcon, setLoadIcon] = useState(false);
+  const [loadUrl, setLoadUrl] = useState(false);
 
   // State of tags
   const [closeTag, setCloseTag] = useState(false);
@@ -92,8 +97,12 @@ function App() {
   const [showUnload, setShowUnload] = useState(null);
   const [env, setEnv] = useState(null);
   const [currentColor, setCurrentColor] = useState(null);
+  const [currentInput, setCurrentInput] = useState(null);
   const [showNotification, setShowNotification] = useState(true);
   const [silentNotification, setSilentNotification] = useState(false);
+  const [minifyTab, setMinifyTab] = useState(false);
+  const [renderImage, setRenderImage] = useState(false);
+  const [exportSetting, setExportSetting] = useState({});
 
   // Theme
   const [color1, setColor1] = useState("#f4eeff");
@@ -101,7 +110,7 @@ function App() {
   const [color3, setColor3] = useState("#a6b1e1");
   const [color4, setColor4] = useState("#424874");
   const [contrast3] = useState("#000000");
-  const [textColor] = useState("#000000");
+  const [textColor, setTextColor] = useState("#000000");
 
   // Store all hotkey
   const keyMap = {
@@ -323,6 +332,12 @@ function App() {
   useEffect(() => {
     if (currentImage >= 0) {
       setReloadFilter(true);
+
+      setExportSetting({
+        type: allImage[currentImage].type,
+        width: allImage[currentImage].width,
+        height: allImage[currentImage].height,
+      });
     } else {
       setSupportFilter(false); // Disable all filter
     }
@@ -364,6 +379,7 @@ function App() {
           setNextTag={setNextTag}
           preTag={preTag}
           setPreTag={setPreTag}
+          minifyTab={minifyTab}
         />
 
         {/* This is main area of the website. */}
@@ -452,6 +468,10 @@ function App() {
           loadNewImage={loadNewImage}
           showExportModal={showExportModal}
           setLoadIcon={setLoadIcon}
+          setLoadUrl={setLoadUrl}
+          renderImage={renderImage}
+          setRenderImage={setRenderImage}
+          exportSetting={exportSetting}
         />
 
         {/* This is menu to upload the image. Currently support jpg, png, webp, svg. */}
@@ -476,7 +496,6 @@ function App() {
           color2={color2}
           color3={color3}
           color4={color4}
-          contrast3={contrast3}
           textColor={textColor}
         />
 
@@ -490,24 +509,20 @@ function App() {
           setShowExportModal={setShowExportModal}
           imageWidth={0}
           imageHeight={0}
-          imageName={allImage.length > 0 ? allImage[0].name : ""}
-          imageUnit={allImage.length > 0 ? allImage[0].unit : ""}
-          imageURL={allImage.length > 0 ? allImage[0].url : ""}
           color1={color1}
           color2={color2}
           color3={color3}
           color4={color4}
-          contrast3={contrast3}
           textColor={textColor}
-          setColor1={setColor1}
-          setColor2={setColor2}
-          setColor3={setColor3}
-          setColor4={setColor4}
           setShowErrorModal={setShowErrorModal}
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
           showNotification={showNotification}
           silentNotification={silentNotification}
+          loadUrl={loadUrl}
+          setLoadUrl={setLoadUrl}
+          setRenderImage={setRenderImage}
+          setExportSetting={setExportSetting}
         />
 
         {/* This is setting menu for change config of the website. */}
@@ -523,9 +538,12 @@ function App() {
           setColor2={setColor2}
           setColor3={setColor3}
           setColor4={setColor4}
+          setTextColor={setTextColor}
           setShowColorPicker={setShowColorPicker}
           currentColor={currentColor}
           setCurrentColor={setCurrentColor}
+          currentInput={currentInput}
+          setCurrentInput={setCurrentInput}
           showColorPicker={showColorPicker}
           setShowErrorModal={setShowErrorModal}
           setErrorTitle={setErrorTitle}
@@ -534,6 +552,8 @@ function App() {
           setShowNotification={setShowNotification}
           silentNotification={silentNotification}
           setSilentNotification={setSilentNotification}
+          minifyTab={minifyTab}
+          setMinifyTab={setMinifyTab}
         />
 
         {/* This is color picker menu. */}
@@ -542,6 +562,11 @@ function App() {
           setShowColorPicker={setShowColorPicker}
           currentColor={currentColor}
           setCurrentColor={setCurrentColor}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          color4={color4}
+          textColor={textColor}
         />
 
         {/* Show all metadata of image */}
@@ -554,6 +579,7 @@ function App() {
           color2={color2}
           color3={color3}
           color4={color4}
+          textColor={textColor}
         />
       </HotKeys>
       {showUnload}

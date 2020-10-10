@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import SliderMaterial from "@material-ui/core/Slider";
 import Tooltip from "@material-ui/core/Tooltip";
 
-import { percentPattern } from "../global";
+import { percentPattern } from "../../helper/global";
 
 const useStyles = makeStyles({
   root: {

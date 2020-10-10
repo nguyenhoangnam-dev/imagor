@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 
-import { roundBytes } from "../helper";
-
 import { makeStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 
-import github from "../img/github.svg";
-import information from "../img/information.svg";
+import github from "../../img/github.svg";
+import information from "../../img/information.svg";
 
 const useStyles = makeStyles((theme) => ({
   progress: {
@@ -40,7 +38,6 @@ function StatusBar(props) {
   const [yResolution, setYResolution] = useState(null);
 
   const [imageType, setImageType] = useState(null);
-  const [imageSize, setImageSize] = useState(null);
   const [imageUnit, setImageUnit] = useState(null);
   const [imageWidth, setImageWidth] = useState(null);
   const [imageHeight, setImageHeight] = useState(null);
@@ -70,7 +67,6 @@ function StatusBar(props) {
       const metadata = allImage.metadata;
 
       setImageType(allImage.type);
-      setImageSize(roundBytes(allImage.size));
       setImageUnit(allImage.unit);
       setImageWidth(allImage.width);
       setImageHeight(allImage.height);
@@ -162,7 +158,6 @@ function StatusBar(props) {
       }
     } else {
       setImageType(null);
-      setImageSize(null);
       setImageUnit(null);
       setImageWidth(null);
       setImageHeight(null);
@@ -201,11 +196,6 @@ function StatusBar(props) {
         {/* Show image type */}
         <Tooltip title="Image type" placement="top">
           <p>{imageType}</p>
-        </Tooltip>
-
-        {/* Show image size */}
-        <Tooltip title="Image size" placement="top">
-          <p>{imageSize}</p>
         </Tooltip>
 
         {/* Show image dimension */}

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { getFilter } from "../helper";
+import { getFilter } from "../helper/helper";
 
 // toBlob polyfill
 if (!HTMLCanvasElement.prototype.toBlob) {
@@ -20,9 +20,9 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 }
 
 function RenderImage(props) {
-  const full = useRef(null);
   const imageRef = useRef(null);
 
+  const full = useRef(null);
   const thumbnail = useRef(null);
   const smallThumbnail = useRef(null);
 
@@ -31,32 +31,52 @@ function RenderImage(props) {
   const [loadImage, setLoadImage] = useState(false);
   //const [imageFilter, setImageFilter] = useState(resetFilter);
 
-  const renderImage = (canvas, imageType, type) => {
-    canvas.toBlob(function (blob) {
-      if (blob) {
-        // props.allImage[props.currentImage].size = roundBytes(blob.size);
-        const current = props.currentImage;
-        if (type === "thumbnail") {
+  const renderImage = (canvas, imageType, type, quality) => {
+    if (!quality) {
+      if (imageType === "image/jpeg") {
+        quality = 0.92;
+      } else if (imageType === "image/webp") {
+        quality = 0.8;
+      } else {
+        quality = 1;
+      }
+    } else {
+      quality /= 100;
+    }
+
+    canvas.toBlob(
+      function (blob) {
+        if (blob) {
+          // props.allImage[props.currentImage].size = roundBytes(blob.size);
+          const current = props.currentImage;
           const url = URL.createObjectURL(blob);
 
-          props.allImage[current].filterURL = url;
-          props.allImageTag[current].thumbnail = url;
+          if (type === "thumbnail") {
+            props.allImage[current].filterURL = url;
+            props.allImageTag[current].thumbnail = url;
 
-          props.allImageTag[current].loadThumbnail = true;
+            props.allImageTag[current].loadThumbnail = true;
 
-          props.setLoadFilterURL(true);
+            props.setLoadFilterURL(true);
 
-          if (props.loadNewImage) {
-            props.setLoadThumbnail(true);
+            if (props.loadNewImage) {
+              props.setLoadThumbnail(true);
+            }
+          } else if (type === "icon") {
+            props.allImageTag[current].icon = url;
+
+            props.allImageTag[current].loadIcon = true;
+            props.setLoadIcon(true);
+          } else if (type === "full") {
+            props.allImage[current].renderUrl = url;
+            props.allImage[current].renderSize = blob.size;
+            props.setLoadUrl(true);
           }
-        } else if (type === "icon") {
-          props.allImageTag[current].icon = URL.createObjectURL(blob);
-
-          props.allImageTag[current].loadIcon = true;
-          props.setLoadIcon(true);
         }
-      }
-    }, imageType);
+      },
+      imageType,
+      quality
+    );
   };
 
   useEffect(() => {
@@ -134,7 +154,7 @@ function RenderImage(props) {
   // Load small thumbnail
   useEffect(() => {
     if (props.loadNewImage) {
-      const canvas = thumbnail.current;
+      const canvas = smallThumbnail.current;
       const context = canvas.getContext("2d");
 
       const current = props.currentImage;
@@ -174,10 +194,42 @@ function RenderImage(props) {
 
   // Render full image
   useEffect(() => {
+    let render = false;
     if (props.showExportModal) {
+      render = true;
+    } else if (props.renderImage) {
+      render = true;
+      props.setRenderImage(false);
+    }
+
+    if (render) {
+      const canvas = full.current;
+      const context = canvas.getContext("2d");
+
+      const current = props.currentImage;
+      if (current >= 0) {
+        let imageWidth = props.exportSetting.width;
+        let imageHeight = props.exportSetting.height;
+
+        canvas.width = imageWidth;
+        canvas.height = imageHeight;
+
+        const currentFilter = getFilter(props.allImage[current].cssFilter);
+        context.filter = currentFilter;
+
+        context.drawImage(tempImage, 0, 0, imageWidth, imageHeight);
+        renderImage(
+          canvas,
+          props.exportSetting.type,
+          "full",
+          props.exportSetting.quality
+        );
+      }
+
+      render = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.showExportModal]);
+  }, [props.showExportModal, props.renderImage]);
 
   const handleLoad = (event) => {
     setLoadImage(true);

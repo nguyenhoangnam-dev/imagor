@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
-import { getFilter } from "../helper";
+import { getFilter } from "../../helper/helper";
 
 function MainScreen(props) {
   // const [isDown, setIsDown] = useState(false);

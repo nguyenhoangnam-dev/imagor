@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import logo from "../img/process.svg";
-import exportIcon from "../img/inside.svg";
-import upload from "../img/cloud-computing.svg";
-import changeView from "../img/synchronization.svg";
-import setting from "../img/maintenance.svg";
-import { ReactComponent as Close } from "../img/cancel.svg";
-import fullScreen from "../img/resize.svg";
+import logo from "../../img/process.svg";
+import exportIcon from "../../img/inside.svg";
+import upload from "../../img/cloud-computing.svg";
+import changeView from "../../img/synchronization.svg";
+import setting from "../../img/maintenance.svg";
+import { ReactComponent as Close } from "../../img/cancel.svg";
+import fullScreen from "../../img/resize.svg";
 
 import Tooltip from "@material-ui/core/Tooltip";
 import ReactTooltip from "react-tooltip";
@@ -168,8 +168,12 @@ function TagBox(props) {
           ""
         )}
 
-        {/* Show name of workplace */}
-        <p className="tag-image-name">{props.tagName}</p>
+        {/* Show name of workplace unless minify tab */}
+        {!props.minifyTab ? (
+          <p className="tag-image-name">{props.tagName}</p>
+        ) : (
+          ""
+        )}
 
         {/* Icon to close workplace */}
         <Tooltip title={"Close (Ctrl + W)"} placement="bottom">
@@ -252,6 +256,7 @@ function TopBar(props) {
               nextTag={props.nextTag && item.id === props.currentImage}
               setPreTag={props.setPreTag}
               preTag={props.preTag && item.id === props.currentImage}
+              minifyTab={props.minifyTab}
             />
           ))}
         </div>

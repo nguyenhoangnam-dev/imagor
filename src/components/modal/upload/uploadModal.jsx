@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
-import { imagePattern, MIME } from "../global";
-import { checkFirstBytes, checkSVG } from "../helper";
+import { imagePattern, MIME } from "../../../helper/global";
+import { checkFirstBytes, checkSVG } from "../../../helper/helper";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
@@ -215,7 +215,11 @@ function UploadModal(props) {
           <div className="other-image flex">
             {props.currentImage >= 0
               ? props.allImageTag.map((image) => (
-                  <OtherImage url={image.thumbnail} name={image.name} />
+                  <OtherImage
+                    key={image.id}
+                    url={image.thumbnail}
+                    name={image.name}
+                  />
                 ))
               : ""}
           </div>

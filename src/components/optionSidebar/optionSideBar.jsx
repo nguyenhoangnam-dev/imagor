@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import SliderFilter from "./slider";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import SliderFilter from "../common/slider";
 import { ResizableBox } from "react-resizable";
-import { setFilter } from "../helper";
+import { setFilter } from "../../helper/helper";
 
-import "../resizable.css";
+import "../../resizable.css";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -81,6 +81,14 @@ function OptionSideBar(props) {
   function changeBlur(event) {
     setBlurValue(event.target.value);
   }
+
+  useLayoutEffect(() => {
+    window.addEventListener("resize", () => {
+      console.log(window.innerHeight - 55);
+      setHeight(window.innerHeight - 55);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Set height for react-resizable
   useEffect(() => {
