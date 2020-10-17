@@ -103,6 +103,7 @@ function App() {
   const [minifyTab, setMinifyTab] = useState(false);
   const [renderImage, setRenderImage] = useState(false);
   const [exportSetting, setExportSetting] = useState({});
+  const [wasm, setWasm] = useState({});
 
   // Theme
   const [color1, setColor1] = useState("#f4eeff");
@@ -295,6 +296,21 @@ function App() {
       setDisableOpacity(true);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line no-unused-expressions
+    const loadWasm = async () => {
+      try {
+        setWasm(await import("external"));
+      } catch (err) {
+        console.error(
+          `Unexpected error in loadWasm. [Message: ${err.message}]`
+        );
+      }
+    };
+
+    loadWasm();
+  }, []);
 
   // This Effect change title of the websites after switch workplace.
   useEffect(() => {

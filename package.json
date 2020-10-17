@@ -25,7 +25,8 @@
     "react-tooltip": "^4.2.10",
     "recharts": "^1.8.5",
     "styled-components": "^5.2.0",
-    "tinycolor2": "^1.4.2"
+    "tinycolor2": "^1.4.2",
+    "external": "file:./pkg"
   },
   "scripts": {
     "start": "react-app-rewired start",
