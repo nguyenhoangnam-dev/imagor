@@ -154,6 +154,12 @@ body {
   border-bottom: 2px solid var(--color-4);
 }
 
+.histogram-box {
+  max-width: 300px;
+  border: 1px solid black;
+  width: calc(100% - 44px) !important;
+}
+
 /* Minimal option bar */
 
 .option-icon-bar {
@@ -209,13 +215,6 @@ body {
   transition: box-shadow 0.2s;
 }
 
-#upload-box:hover {
-  -webkit-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
-  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
-  transition: box-shadow 0.3s;
-}
-
 /* .upload-panel {
   position: absolute;
   top: 0;
@@ -230,14 +229,14 @@ body {
   width: 100%;
   height: 40%;
   padding: 10px;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
 }
 
 .upload-box {
   flex-direction: column;
   width: 100%;
-  height: 60%;
-  border: 8px dashed #b3b3b3;
-  border-radius: 20px;
+  height: 100%;
   background-color: white;
 }
 
@@ -277,6 +276,12 @@ body {
   background-color: var(--color-1);
   border-radius: 4px;
   width: 500px;
+  outline: 0;
+  border: 1px solid black;
+}
+
+:focus {
+  outline: 0;
 }
 
 .modal-box h1 {
@@ -339,6 +344,7 @@ body {
   height: 80px;
   border: 1px solid black;
   box-sizing: content-box;
+  position: relative;
 }
 
 .small-top-bar {
@@ -384,6 +390,31 @@ body {
   height: 5px;
   border-top: 1px solid var(--color-4);
   background-color: var(--color-3);
+}
+
+.small-modal {
+  position: absolute;
+  width: 30px;
+  height: 26px;
+  border: 1px solid black;
+  left: 60px;
+  top: 27px;
+  background-color: var(--color-1);
+}
+
+.small-modal-header {
+  background-color: var(--color-3);
+  height: 6px;
+}
+
+.small-button {
+  background-color: var(--color-2);
+  border: 1px solid black;
+  margin-left: 1px;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  width: 8px;
+  height: 5px;
 }
 
 /* Color picker */

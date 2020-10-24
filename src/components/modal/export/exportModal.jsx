@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import Button from "@material-ui/core/Button";
-import Tooltip from "@material-ui/core/Tooltip";
-import SliderQuality from "../../common/slider";
-import { ReactComponent as Close } from "../../../img/cancel.svg";
-import { roundBytes } from "../../../helper/helper";
+import { makeStyles } from '@material-ui/core/styles';
+import Modal from '@material-ui/core/Modal';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
+import SliderQuality from '../../common/slider';
+import { ReactComponent as Close } from '../../../img/cancel.svg';
+import { roundBytes } from '../../../helper/helper';
 
-import LinearProgress from "@material-ui/core/LinearProgress";
-import createGlobalStyle from "styled-components";
+import LinearProgress from '@material-ui/core/LinearProgress';
+import createGlobalStyle from 'styled-components';
 
 const getPathFromPublic = (path) => `${process.env.PUBLIC_URL}/${path}`;
-const wwNotificationPath = getPathFromPublic("wwNotification.js");
+const wwNotificationPath = getPathFromPublic('wwNotification.js');
 const wwNotification = new Worker(wwNotificationPath);
 
 const GlobalStyles = createGlobalStyle.div`
@@ -28,9 +28,9 @@ const GlobalStyles = createGlobalStyle.div`
 
 const useStyles = makeStyles((theme) => ({
   modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   formControl: {
     width: 80,
@@ -41,27 +41,27 @@ const useStyles = makeStyles((theme) => ({
   progress: {
     height: 14,
     borderRadius: 8,
-    width: "100%",
+    width: '100%',
   },
   colorPrimary: {
-    backgroundColor: "#bbe1fa",
+    backgroundColor: '#bbe1fa',
   },
   bar: {
     borderRadius: 5,
-    backgroundColor: "#3282b8",
+    backgroundColor: '#3282b8',
   },
   button: {
-    boxShadow: "none",
-    textTransform: "none",
+    boxShadow: 'none',
+    textTransform: 'none',
     fontSize: 15,
     lineHeight: 1.5,
-    color: "black",
-    backgroundColor: "var(--color-2)",
+    color: 'black',
+    backgroundColor: 'var(--color-2)',
     marginLeft: 10,
-    transition: "background-color .4s",
-    "&:hover": {
-      backgroundColor: "var(--color-3)",
-      transition: "background-color .3s",
+    transition: 'background-color .4s',
+    '&:hover': {
+      backgroundColor: 'var(--color-3)',
+      transition: 'background-color .3s',
     },
   },
 }));
@@ -69,10 +69,6 @@ const useStyles = makeStyles((theme) => ({
 function ExportModal(props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  // const [destType, setDestType] = useState(null); // Will set initial image type
-  // const [quality, setQuality] = useState(null);
-
-  // const [renderImage, setRenderImage] = useState(false);
   const [supportQuality, setSupportQuality] = useState(true);
   const [progressFilterValue, setProgressFilterValue] = useState(0);
 
@@ -96,14 +92,14 @@ function ExportModal(props) {
     const destTypeValue = event.target.value;
     setImageType(destTypeValue);
 
-    if (destTypeValue === "png" || destTypeValue === "bmp") {
+    if (destTypeValue === 'png' || destTypeValue === 'bmp') {
       setImageQuality(100);
       setSupportQuality(false);
     } else {
       setSupportQuality(true);
-      if (destTypeValue === "jpg") {
+      if (destTypeValue === 'jpg') {
         setImageQuality(92);
-      } else if (destTypeValue === "webp") {
+      } else if (destTypeValue === 'webp') {
         setImageQuality(80);
       }
     }
@@ -170,9 +166,9 @@ function ExportModal(props) {
       setImageName(props.allImage[current].name);
 
       const currentImageType = props.allImage[current].type;
-      if (currentImageType === "image/jpeg") {
+      if (currentImageType === 'image/jpeg') {
         setImageQuality(92);
-      } else if (currentImageType === "image/webp") {
+      } else if (currentImageType === 'image/webp') {
         setImageQuality(80);
       }
       setImageType(currentImageType);
@@ -195,7 +191,7 @@ function ExportModal(props) {
       wwNotification.postMessage({
         title: imageName,
         body:
-          "Click this notification to show image after rendered in full-screen",
+          'Click this notification to show image after rendered in full-screen',
         silent: props.silentNotification,
         url: props.allImage[current].renderUrl,
       });
@@ -213,7 +209,7 @@ function ExportModal(props) {
         className={classes.modal}
         open={open}
         onClose={handleClose}
-        BackdropProps={{ style: { backgroundColor: "transparent" } }}
+        BackdropProps={{ style: { backgroundColor: 'transparent' } }}
       >
         <GlobalStyles
           color1={props.color1}
@@ -223,7 +219,7 @@ function ExportModal(props) {
           contrast3={props.contrast3}
           textColor={props.textColor}
         >
-          <div className="modal-box ">
+          <div className="modal-box">
             <div className="modal-box-header flex f-space-between f-vcenter">
               <h1>Export menu</h1>
               <Close
@@ -232,7 +228,7 @@ function ExportModal(props) {
                   setOpen(false);
                   props.setShowExportModal(false);
                 }}
-                style={{ fill: "white" }}
+                style={{ fill: 'white' }}
               />
             </div>
             <div className="modal-box-content flex f-column">
@@ -240,7 +236,7 @@ function ExportModal(props) {
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image name" placement="top">
-                    <p style={{ display: "inline-block" }}>Name</p>
+                    <p style={{ display: 'inline-block' }}>Name</p>
                   </Tooltip>
                 </div>
                 <input
@@ -251,9 +247,9 @@ function ExportModal(props) {
                     setImageName(event.target.value);
                   }}
                   style={{
-                    width: "calc(100% - 90px)",
-                    backgroundColor: "var(--color-1)",
-                    border: "none",
+                    width: 'calc(100% - 90px)',
+                    backgroundColor: 'var(--color-1)',
+                    border: 'none',
                   }}
                 />
               </div>
@@ -262,7 +258,7 @@ function ExportModal(props) {
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image name" placement="top">
-                    <p style={{ display: "inline-block" }}>Size</p>
+                    <p style={{ display: 'inline-block' }}>Size</p>
                   </Tooltip>
                 </div>
                 <p>{imageSize}</p>
@@ -272,7 +268,7 @@ function ExportModal(props) {
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image type" placement="top">
-                    <p style={{ display: "inline-block" }}>Type</p>
+                    <p style={{ display: 'inline-block' }}>Type</p>
                   </Tooltip>
                 </div>
                 <FormControl className={classes.formControl}>
@@ -282,20 +278,20 @@ function ExportModal(props) {
                     value={imageType}
                     onChange={changeDestType}
                     inputProps={{
-                      id: "destType",
+                      id: 'destType',
                     }}
                   >
-                    <option value={"jpg"}>JPG</option>
-                    <option value={"png"}>PNG</option>
-                    <option value={"webp"}>WEBP</option>
-                    <option value={"bmp"}>BMP</option>
+                    <option value={'jpg'}>JPG</option>
+                    <option value={'png'}>PNG</option>
+                    <option value={'webp'}>WEBP</option>
+                    <option value={'bmp'}>BMP</option>
                   </Select>
                 </FormControl>
               </div>
 
               {/* Set quality */}
               <SliderQuality
-                filterName={"Quality"}
+                filterName={'Quality'}
                 defaultValue={imageQuality}
                 disable={!supportQuality}
                 getValue={(value) => {
@@ -309,7 +305,7 @@ function ExportModal(props) {
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image dimension" placement="top">
-                    <p style={{ display: "inline-block" }}>Dimension</p>
+                    <p style={{ display: 'inline-block' }}>Dimension</p>
                   </Tooltip>
                 </div>
                 <div className="flex f-vcenter">
@@ -319,17 +315,17 @@ function ExportModal(props) {
                     value={imageWidth}
                     style={{
                       width: 50,
-                      backgroundColor: "var(--color-1)",
-                      border: "none",
+                      backgroundColor: 'var(--color-1)',
+                      border: 'none',
                     }}
                     onChange={(event) => {
                       setImageWidth(event.target.value);
                     }}
                     onKeyUp={(event) => {
-                      if (event.key === "Enter") {
-                        if (imageWidth === "") {
-                          props.setErrorTitle("Error");
-                          props.setErrorMessage("Invalid number.");
+                      if (event.key === 'Enter') {
+                        if (imageWidth === '') {
+                          props.setErrorTitle('Error');
+                          props.setErrorMessage('Invalid number.');
                           props.setShowErrorModal(true);
                         }
                       }
@@ -342,17 +338,17 @@ function ExportModal(props) {
                     value={imageHeight}
                     style={{
                       width: 50,
-                      backgroundColor: "var(--color-1)",
-                      border: "none",
+                      backgroundColor: 'var(--color-1)',
+                      border: 'none',
                     }}
                     onChange={(event) => {
                       setImageHeight(event.target.value);
                     }}
                     onKeyUp={(event) => {
-                      if (event.key === "Enter") {
-                        if (imageHeight === "") {
-                          props.setErrorTitle("Error");
-                          props.setErrorMessage("Invalid number.");
+                      if (event.key === 'Enter') {
+                        if (imageHeight === '') {
+                          props.setErrorTitle('Error');
+                          props.setErrorMessage('Invalid number.');
                           props.setShowErrorModal(true);
                         }
                       }
@@ -365,7 +361,7 @@ function ExportModal(props) {
               <div className="flex f-vcenter mb-15">
                 <div style={{ width: 90 }}>
                   <Tooltip title="Image unit" placement="top">
-                    <p style={{ display: "inline-block" }}>Unit</p>
+                    <p style={{ display: 'inline-block' }}>Unit</p>
                   </Tooltip>
                 </div>
 
@@ -375,13 +371,13 @@ function ExportModal(props) {
                     native
                     value={imageUnit}
                     inputProps={{
-                      id: "unit",
+                      id: 'unit',
                     }}
                   >
-                    <option value={"px"}>PX</option>
-                    <option value={"inch"}>INCH</option>
-                    <option value={"cm"}>CM</option>
-                    <option value={"mm"}>MM</option>
+                    <option value={'px'}>PX</option>
+                    <option value={'inch'}>INCH</option>
+                    <option value={'cm'}>CM</option>
+                    <option value={'mm'}>MM</option>
                   </Select>
                 </FormControl>
               </div>
@@ -390,8 +386,8 @@ function ExportModal(props) {
               <div className="flex f-vcenter f-hcenter">
                 <img
                   className={
-                    "mb-15 " +
-                    (imageOrient === "landscape" ? "mw-100" : "mh-300")
+                    'mb-15 ' +
+                    (imageOrient === 'landscape' ? 'mw-100' : 'mh-300')
                   }
                   src={imageURL}
                   alt="Preview"

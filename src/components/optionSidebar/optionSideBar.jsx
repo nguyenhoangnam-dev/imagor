@@ -1,35 +1,41 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
-import SliderFilter from "../common/slider";
-import { ResizableBox } from "react-resizable";
-import { setFilter } from "../../helper/helper";
+import React, { useState, useEffect, useLayoutEffect } from 'react';
+import SliderFilter from '../common/slider';
+import { ResizableBox } from 'react-resizable';
+import { setFilter } from '../../helper/helper';
 
-import "../../resizable.css";
+import '../../resizable.css';
 
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import Tooltip from "@material-ui/core/Tooltip";
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
 
-import { AreaChart, Area, XAxis, YAxis } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
 
-const { Image } = require("image-js");
-
-const getPathFromPublic = (path) => `${process.env.PUBLIC_URL}/${path}`;
-const wwHistogramPath = getPathFromPublic("histogram.js");
-const wwHistogram = new Worker(wwHistogramPath);
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import Worker from 'worker-loader!../../worker/histogram.worker.js';
+import * as Comlink from 'comlink';
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    boxShadow: "none",
-    textTransform: "none",
+    boxShadow: 'none',
+    textTransform: 'none',
     fontSize: 15,
     lineHeight: 1.5,
-    color: "black",
-    backgroundColor: "var(--color-2)",
+    color: 'black',
+    backgroundColor: 'var(--color-2)',
     marginLeft: 10,
-    transition: "background-color .4s",
-    "&:hover": {
-      backgroundColor: "var(--color-3)",
-      transition: "background-color .3s",
+    transition: 'background-color .4s',
+    '&:hover': {
+      backgroundColor: 'var(--color-3)',
+      transition: 'background-color .3s',
     },
   },
 }));
@@ -61,16 +67,30 @@ function OptionSideBar(props) {
   const [showBlueChannel, setShowBlueChannel] = useState(false);
   const [showGreyChannel, setShowGreyChannel] = useState(false);
 
-  // const [channel, setChannel] = useState("all");
+  useEffect(() => {
+    for (let i = 0; i < 256; i++) {
+      dataHistogram.push({
+        name: i,
+        red: 0,
+        green: 0,
+        blue: 0,
+        grey: 0,
+        cyan: 0,
+        magenta: 0,
+        yellow: 0,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Set blur value after submit
    * @param {Object} event Store key when key up trigger
    */
   function submitBlur(event) {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       props.setChangeFilter(true);
-      props.getFilter("blur", blurValue);
+      props.getFilter('blur', blurValue);
     }
   }
 
@@ -83,7 +103,7 @@ function OptionSideBar(props) {
   }
 
   useLayoutEffect(() => {
-    window.addEventListener("resize", () => {
+    window.addEventListener('resize', () => {
       console.log(window.innerHeight - 55);
       setHeight(window.innerHeight - 55);
     });
@@ -95,45 +115,28 @@ function OptionSideBar(props) {
     setHeight(window.innerHeight - 55);
   }, []);
 
-  // Trigger after thumbnail's filter URL update.
-  useEffect(() => {
-    if (props.loadFilterURL) {
-      const current = props.currentImage;
-
-      Image.load(props.allImage[current].filterURL).then((image) => {
-        props.allImage[current].changeFilter = true;
-        props.allImage[current].histograms = image.getHistograms({
-          maxSlots: 256,
-          useAlpha: false,
-        });
-      });
-      props.setLoadFilterURL(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.loadFilterURL]);
-
   // Load image to color histogram after upload new image
   useEffect(() => {
     const current = props.currentImage;
 
     if (current >= 0) {
       if (props.loadThumbnail) {
-        Image.load(props.allImage[current].filterURL)
-          .then((image) => {
-            wwHistogram.postMessage(
-              image.getHistograms({
-                maxSlots: 256,
-                useAlpha: false,
-              })
-            );
-          })
-          .catch((err) => {
-            props.setErrorTitle("Error");
-            props.setErrorMessage(
-              "Your image is too large to find histogram, color model and bit depth."
-            );
-            props.setShowErrorModal(true);
-          });
+        const imageBlob = props.allImage[current].blobThumbnail;
+
+        (async () => {
+          try {
+            const getHistogram = Comlink.wrap(new Worker());
+
+            // @ts-ignore
+            let histogram = await getHistogram(imageBlob);
+            setDataHistogram(histogram);
+
+            props.allImage[current].loadMeta = true;
+            props.allImage[current].histogramObject = histogram;
+          } catch (err) {
+            console.log(err);
+          }
+        })();
 
         props.setLoadNewImage(false);
         props.setLoadThumbnail(false);
@@ -153,25 +156,28 @@ function OptionSideBar(props) {
     const current = props.currentImage;
 
     if (props.loadFilterURL) {
-      Image.load(props.allImage[current].filterURL)
-        .then((image) => {
-          wwHistogram.postMessage(
-            image.getHistograms({
-              maxSlots: 256,
-              useAlpha: false,
-            })
-          );
-        })
-        .catch((err) => {
-          props.setErrorTitle("Error");
-          props.setErrorMessage(
-            "Your image is too large to find histogram, color model and bit depth."
-          );
-          props.setShowErrorModal(true);
-        });
+      const imageBlob = props.allImage[current].blobThumbnail;
+
+      (async () => {
+        try {
+          const getHistogram = Comlink.wrap(new Worker());
+
+          // @ts-ignore
+          let histogram = await getHistogram(imageBlob);
+          setDataHistogram(histogram);
+
+          props.allImage[current].loadMeta = true;
+          props.allImage[current].histogramObject = histogram;
+        } catch (err) {
+          console.log(err);
+        }
+      })();
+
       if (props.allImage[current].changeFilter) {
         props.allImage[current].changeFilter = false;
       }
+
+      props.setLoadFilterURL(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,8 +267,8 @@ function OptionSideBar(props) {
   // Show error when input invalid number
   useEffect(() => {
     if (invalidInput) {
-      props.setErrorTitle("Error");
-      props.setErrorMessage("Invalid percent value.");
+      props.setErrorTitle('Error');
+      props.setErrorMessage('Invalid percent value.');
       props.setShowErrorModal(true);
 
       setInvalidInput(false);
@@ -270,141 +276,166 @@ function OptionSideBar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invalidInput]);
 
-  // Store histogram
-  wwHistogram.onmessage = function (event) {
-    const current = props.currentImage;
-    props.allImage[current].loadMeta = true;
-    props.allImage[current].histogramObject = event.data;
-    setDataHistogram(event.data);
-  };
-
   return (
     <ResizableBox
       width={width}
       height={height}
       minConstraints={[225, height]}
-      axis={"x"}
-      resizeHandles={["w"]}
+      axis={'x'}
+      resizeHandles={['w']}
       className={`option-sidebar flex f-column f-vcenter ${
-        props.showOption ? "" : "disable"
+        props.showOption ? '' : 'disable'
       }`}
     >
       <div className="filter-box w-100 flex f-column f-vcenter">
         {/* Color histogram */}
-        <AreaChart
-          width={180}
+        <ResponsiveContainer
+          width={'100%'}
           height={150}
-          data={dataHistogram}
-          margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
-          className="flex f-hcenter f-vcenter"
-          style={{
-            minWidth: 180,
-            width: "calc(100% - 44px)",
-            maxWidth: 300,
-            border: "1px solid black",
-            marginBottom: 10,
-          }}
+          minWidth={180}
+          className="flex f-hcenter f-vend "
         >
-          <XAxis dataKey="name" hide={true} />
-          <YAxis hide={true} scale="sqrt" />
-          {/* <CartesianGrid strokeDasharray="3 3" /> */}
-          <Area
-            type="monotone"
-            dataKey="red"
-            // stroke="#ff0000"
-            fillOpacity={1}
-            fill="#ff0000"
-            hide={showRedChannel}
-          />
-          <Area
-            type="monotone"
-            dataKey="green"
-            stroke="#00ff00"
-            fillOpacity={1}
-            fill="#00ff00"
-            hide={showGreenChannel}
-          />
-          <Area
-            type="monotone"
-            dataKey="blue"
-            stroke="#0000ff"
-            fillOpacity={1}
-            fill="#0000ff"
-            hide={showBlueChannel}
-          />
-          <Area
-            type="monotone"
-            dataKey="cyan"
-            stroke="#00ffff"
-            fillOpacity={1}
-            fill="#00ffff"
-            hide={showGreenChannel || showBlueChannel}
-          />
-          <Area
-            type="monotone"
-            dataKey="magenta"
-            stroke="#ff00ff"
-            fillOpacity={1}
-            fill="#ff00ff"
-            hide={showRedChannel || showBlueChannel}
-          />
-          <Area
-            type="monotone"
-            dataKey="yellow"
-            stroke="#ffff00"
-            fillOpacity={1}
-            fill="#ffff00"
-            hide={showRedChannel || showGreenChannel}
-          />
-          <Area
-            type="monotone"
-            dataKey="grey"
-            stroke="#bbbbbb"
-            fillOpacity={1}
-            fill="#bbbbbb"
-            hide={
-              (showRedChannel || showGreenChannel || showBlueChannel) &&
-              showGreyChannel
-            }
-          />
-        </AreaChart>
+          <AreaChart
+            data={dataHistogram}
+            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+            className="flex histogram-box"
+          >
+            <defs>
+              <linearGradient id="redGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#880000" stopOpacity={1} />
+                <stop offset="95%" stopColor="#ff0000" stopOpacity={1} />
+              </linearGradient>
+              <linearGradient id="greenGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#008800" stopOpacity={1} />
+                <stop offset="95%" stopColor="#00ff00" stopOpacity={1} />
+              </linearGradient>
+              <linearGradient id="blueGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#000088" stopOpacity={1} />
+                <stop offset="95%" stopColor="#0000ff" stopOpacity={1} />
+              </linearGradient>
+              <linearGradient id="cyanGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#008888" stopOpacity={1} />
+                <stop offset="95%" stopColor="#00ffff" stopOpacity={1} />
+              </linearGradient>
+              <linearGradient id="magentaGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#880088" stopOpacity={1} />
+                <stop offset="95%" stopColor="#ff00ff" stopOpacity={1} />
+              </linearGradient>
+              <linearGradient id="yellowGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#88888800" stopOpacity={1} />
+                <stop offset="95%" stopColor="#ffff00" stopOpacity={1} />
+              </linearGradient>
+              <linearGradient id="greyGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#888888" stopOpacity={1} />
+                <stop offset="95%" stopColor="#ffffff" stopOpacity={1} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="name" hide={true} />
+            <YAxis hide={true} scale="sqrt" />
+            <CartesianGrid
+              strokeDasharray="3"
+              horizontalPoints={[0]}
+              verticalPoints={[0, 85, 170, 256]}
+            />
+            <Area
+              type="monotone"
+              dataKey="red"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#redGradient)"
+              hide={showRedChannel}
+            />
+            <Area
+              type="monotone"
+              dataKey="green"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#greenGradient)"
+              hide={showGreenChannel}
+            />
+            <Area
+              type="monotone"
+              dataKey="blue"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#blueGradient)"
+              hide={showBlueChannel}
+            />
+            <Area
+              type="monotone"
+              dataKey="cyan"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#cyanGradient)"
+              hide={showGreenChannel || showBlueChannel}
+            />
+            <Area
+              type="monotone"
+              dataKey="magenta"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#magentaGradient)"
+              hide={showRedChannel || showBlueChannel}
+            />
+            <Area
+              type="monotone"
+              dataKey="yellow"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#yellowGradient)"
+              hide={showRedChannel || showGreenChannel}
+            />
+            <Area
+              type="monotone"
+              dataKey="grey"
+              strokeOpacity={0}
+              fillOpacity={1}
+              fill="url(#greyGradient)"
+              hide={
+                (showRedChannel || showGreenChannel || showBlueChannel) &&
+                showGreyChannel
+              }
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+
         <div
           className="flex f-space-between"
           style={{
             minWidth: 180,
-            width: "calc(100% - 44px)",
+            width: 'calc(100% - 44px)',
             maxWidth: 300,
             marginBottom: 10,
           }}
         >
           <p>Channel</p>
           <select
-            style={{ backgroundColor: "var(--color-1)" }}
+            style={{ backgroundColor: 'var(--color-1)' }}
             className="c-pointer"
             onChange={(event) => {
               const channel = event.target.value;
 
-              if (channel === "all") {
+              if (channel === 'all') {
                 setShowRedChannel(false);
                 setShowGreenChannel(false);
                 setShowBlueChannel(false);
                 setShowGreyChannel(true);
-              } else if (channel === "red") {
+              } else if (channel === 'red') {
                 setShowRedChannel(false);
                 setShowGreenChannel(true);
                 setShowBlueChannel(true);
                 setShowGreyChannel(true);
-              } else if (channel === "blue") {
+              } else if (channel === 'blue') {
                 setShowRedChannel(true);
                 setShowGreenChannel(true);
                 setShowBlueChannel(false);
                 setShowGreyChannel(true);
-              } else if (channel === "green") {
+              } else if (channel === 'green') {
                 setShowRedChannel(true);
                 setShowGreenChannel(false);
                 setShowBlueChannel(true);
                 setShowGreyChannel(true);
-              } else if (channel === "grey") {
+              } else if (channel === 'grey') {
                 setShowGreyChannel(false);
                 setShowRedChannel(true);
                 setShowGreenChannel(true);
@@ -423,7 +454,7 @@ function OptionSideBar(props) {
         {/* Contrast filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Contrast"}
+          filterName={'Contrast'}
           defaultValue={100}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -443,7 +474,7 @@ function OptionSideBar(props) {
         {/* Brightness filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Brightness"}
+          filterName={'Brightness'}
           defaultValue={100}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -463,7 +494,7 @@ function OptionSideBar(props) {
         {/* Opacity filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Opacity"}
+          filterName={'Opacity'}
           defaultValue={100}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -484,7 +515,7 @@ function OptionSideBar(props) {
         {/* Saturate filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Saturate"}
+          filterName={'Saturate'}
           defaultValue={100}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -504,7 +535,7 @@ function OptionSideBar(props) {
         {/* Grayscale filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Grayscale"}
+          filterName={'Grayscale'}
           defaultValue={0}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -524,7 +555,7 @@ function OptionSideBar(props) {
         {/* Invert filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Invert"}
+          filterName={'Invert'}
           defaultValue={0}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -544,7 +575,7 @@ function OptionSideBar(props) {
         {/* Sepia filter */}
         <SliderFilter
           className="mt-15"
-          filterName={"Sepia"}
+          filterName={'Sepia'}
           defaultValue={0}
           currentImage={props.currentImage}
           allImage={props.allImage}
@@ -562,10 +593,10 @@ function OptionSideBar(props) {
         />
         <div
           className="flex f-space-between"
-          style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}
+          style={{ minWidth: 180, width: 'calc(100% - 44px)', maxWidth: 300 }}
         >
           <Tooltip title="Blur image." placement="bottom">
-            <p className={!props.supportFilter ? "t-disabled" : ""}>Blur</p>
+            <p className={!props.supportFilter ? 't-disabled' : ''}>Blur</p>
           </Tooltip>
 
           <div>
@@ -574,15 +605,15 @@ function OptionSideBar(props) {
               value={blurValue}
               onChange={changeBlur}
               onKeyUp={submitBlur}
-              style={{ backgroundColor: "var(--color-1)" }}
+              style={{ backgroundColor: 'var(--color-1)' }}
               disabled={!props.supportFilter}
             />
-            <span className={!props.supportFilter ? "t-disabled" : ""}>px</span>
+            <span className={!props.supportFilter ? 't-disabled' : ''}>px</span>
           </div>
         </div>
         <div
           className="flex f-hright mt-25"
-          style={{ minWidth: 180, width: "calc(100% - 44px)", maxWidth: 300 }}
+          style={{ minWidth: 180, width: 'calc(100% - 44px)', maxWidth: 300 }}
         >
           <Button
             className={classes.button}

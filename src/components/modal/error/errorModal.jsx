@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import Button from "@material-ui/core/Button";
+import { makeStyles } from '@material-ui/core/styles';
+import Modal from '@material-ui/core/Modal';
+import Button from '@material-ui/core/Button';
 
-import { ReactComponent as Close } from "../../../img/cancel.svg";
-import createGlobalStyle from "styled-components";
+import { ReactComponent as Close } from '../../../img/cancel.svg';
+import createGlobalStyle from 'styled-components';
 
 const GlobalStyles = createGlobalStyle.div`
   --color-1: ${(props) => props.color1};
@@ -18,25 +18,25 @@ const GlobalStyles = createGlobalStyle.div`
 
 const useStyles = makeStyles((theme) => ({
   modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
-    boxShadow: "none",
-    textTransform: "none",
+    boxShadow: 'none',
+    textTransform: 'none',
     fontSize: 15,
     lineHeight: 1.5,
-    color: "black",
-    backgroundColor: "var(--color-2)",
+    color: 'black',
+    backgroundColor: 'var(--color-2)',
     borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "var(--color-3)",
+    borderStyle: 'solid',
+    borderColor: 'var(--color-3)',
     marginLeft: 10,
-    transition: "background-color .4s",
-    "&:hover": {
-      backgroundColor: "var(--color-3)",
-      transition: "background-color .3s",
+    transition: 'background-color .4s',
+    '&:hover': {
+      backgroundColor: 'var(--color-3)',
+      transition: 'background-color .3s',
     },
   },
 }));
@@ -64,11 +64,12 @@ function ErrorModal(props) {
     <div>
       <Modal
         aria-labelledby="Error modal"
-        aria-describedby={props.errorMessage || ""}
+        aria-describedby={props.errorMessage || ''}
         className={classes.modal}
         open={open}
         onClose={handleClose}
-        BackdropProps={{ style: { backgroundColor: "transparent" } }}
+        BackdropProps={{ style: { backgroundColor: 'transparent' } }}
+        disableBackdropClick={true}
       >
         <GlobalStyles
           color1={props.color1}
@@ -88,7 +89,7 @@ function ErrorModal(props) {
                   setOpen(false);
                   props.setShowErrorModal(false);
                 }}
-                style={{ fill: "white" }}
+                style={{ fill: 'white' }}
               />
             </div>
 

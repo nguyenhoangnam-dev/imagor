@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import Button from "@material-ui/core/Button";
+import { makeStyles } from '@material-ui/core/styles';
+import Modal from '@material-ui/core/Modal';
+import Button from '@material-ui/core/Button';
 
-import { ReactComponent as Close } from "../../../img/cancel.svg";
-import createGlobalStyle from "styled-components";
+import { ReactComponent as Close } from '../../../img/cancel.svg';
+import createGlobalStyle from 'styled-components';
 
 const GlobalStyles = createGlobalStyle.div`
   --color-1: ${(props) => props.color1};
@@ -18,25 +18,25 @@ const GlobalStyles = createGlobalStyle.div`
 
 const useStyles = makeStyles((theme) => ({
   modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
-    boxShadow: "none",
-    textTransform: "none",
+    boxShadow: 'none',
+    textTransform: 'none',
     fontSize: 15,
     lineHeight: 1.5,
-    color: "black",
-    backgroundColor: "var(--color-2)",
+    color: 'black',
+    backgroundColor: 'var(--color-2)',
     borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "var(--color-3)",
+    borderStyle: 'solid',
+    borderColor: 'var(--color-3)',
     marginLeft: 10,
-    transition: "background-color .4s",
-    "&:hover": {
-      backgroundColor: "var(--color-3)",
-      transition: "background-color .3s",
+    transition: 'background-color .4s',
+    '&:hover': {
+      backgroundColor: 'var(--color-3)',
+      transition: 'background-color .3s',
     },
   },
 }));
@@ -45,11 +45,17 @@ function MetadataType(props) {
   return (
     <>
       <h2>{props.title}</h2>
-      {Object.entries(props.metaProp).map(([name, description]) => (
-        <p key={name}>
-          {name}: {description.description}
-        </p>
-      ))}
+      {Object.entries(props.metaProp).map(([name, description]) =>
+        description.description !== '' &&
+        name !== 'UserComment' &&
+        name !== 'NativeDigest' ? (
+          <p key={name}>
+            {name}: {description.description}
+          </p>
+        ) : (
+          ''
+        )
+      )}
     </>
   );
 }
@@ -90,7 +96,7 @@ function MetadataModal(props) {
         className={classes.modal}
         open={open}
         onClose={handleClose}
-        BackdropProps={{ style: { backgroundColor: "transparent" } }}
+        BackdropProps={{ style: { backgroundColor: 'transparent' } }}
       >
         <GlobalStyles
           color1={props.color1}
@@ -109,10 +115,13 @@ function MetadataModal(props) {
                   setOpen(false);
                   props.setShowMetadataModal(false);
                 }}
-                style={{ fill: "white" }}
+                style={{ fill: 'white' }}
               />
             </div>
-            <div className="modal-box-content metadata-content">
+            <div
+              className="modal-box-content metadata-content"
+              style={{ height: 700, overflowY: 'auto' }}
+            >
               {metadata.map((metaType) => (
                 <MetadataType
                   key={metaType[0]}

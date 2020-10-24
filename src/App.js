@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { HotKeys } from "react-hotkeys";
+import React, { useState, useEffect } from 'react';
+import { HotKeys } from 'react-hotkeys';
 
-import { notCanvasFilter } from "./helper/global";
+import { notCanvasFilter } from './helper/global';
 
 import {
   TopBar,
@@ -11,7 +11,7 @@ import {
   OptionMinimal,
   StatusBar,
   RenderImage,
-} from "./layout";
+} from './layout';
 
 import {
   ErrorModal,
@@ -20,16 +20,16 @@ import {
   UploadModal,
   ColorPickerModal,
   MetadataModal,
-} from "./modal";
+} from './modal';
 
-import { Beforeunload } from "react-beforeunload";
+import { Beforeunload } from 'react-beforeunload';
 
-import createGlobalStyle from "styled-components";
+import createGlobalStyle from 'styled-components';
 
-import "./components.css";
-import "./App.css";
+import './components.css';
+import './App.css';
 
-const ExifReader = require("exifreader");
+const ExifReader = require('exifreader');
 
 // Send theme to the styled-components
 const GlobalStyles = createGlobalStyle.div`
@@ -40,12 +40,14 @@ const GlobalStyles = createGlobalStyle.div`
   --color-4: ${(props) => props.color4};
   --contrast-3: ${(props) => props.contrast3};
   --text-color: ${(props) => props.textColor};
+  --inactive-color: ${(props) => props.inactiveColor}
+  --icon-color: ${(props) => props.iconColor}
 `;
 
 Notification.requestPermission().then(function (permission) {});
 
 function App() {
-  const appName = "Imagor"; // Name of the project may change in the future.
+  const appName = 'Imagor'; // Name of the project may change in the future.
   const [title, setTitle] = useState(appName);
 
   // State of workplace
@@ -103,30 +105,32 @@ function App() {
   const [minifyTab, setMinifyTab] = useState(false);
   const [renderImage, setRenderImage] = useState(false);
   const [exportSetting, setExportSetting] = useState({});
-  const [wasm, setWasm] = useState({});
+  // const [wasm, setWasm] = useState({});
 
   // Theme
-  const [color1, setColor1] = useState("#f4eeff");
-  const [color2, setColor2] = useState("#dcd6f7");
-  const [color3, setColor3] = useState("#a6b1e1");
-  const [color4, setColor4] = useState("#424874");
-  const [contrast3] = useState("#000000");
-  const [textColor, setTextColor] = useState("#000000");
+  const [color1, setColor1] = useState('#f4eeff');
+  const [color2, setColor2] = useState('#dcd6f7');
+  const [color3, setColor3] = useState('#a6b1e1');
+  const [color4, setColor4] = useState('#424874');
+  const [contrast3] = useState('#000000');
+  const [textColor, setTextColor] = useState('#000000');
+  const [inactiveColor, setInactiveColor] = useState('#a7b6d4');
+  const [iconColor, setIconColor] = useState('#000000');
 
   // Store all hotkey
   const keyMap = {
-    TOGGLE_SIDEBAR: "ctrl+b",
-    OPEN_EXPORT: "ctrl+shift+e",
-    OPEN_UPLOAD: "ctrl+shift+u",
-    OPEN_FULLSCREEN: "ctrl+shift+f",
-    OPEN_SETTING: "alt+s",
-    CLOSE_CURRENT_TAG: "alt+w",
-    OPEN_NEXT_TAG: "alt+n",
-    OPEN_PRE_TAG: "alt+p",
-    UNDO_FILTER: "alt+z",
-    REDO_FILTER: "alt+shift+z",
-    CLOSE_MODAL: "alt+x",
-    OPEN_METADATA: "alt+i",
+    TOGGLE_SIDEBAR: 'ctrl+b',
+    OPEN_EXPORT: 'ctrl+shift+e',
+    OPEN_UPLOAD: 'ctrl+shift+u',
+    OPEN_FULLSCREEN: 'ctrl+shift+f',
+    OPEN_SETTING: 'alt+s',
+    CLOSE_CURRENT_TAG: 'alt+w',
+    OPEN_NEXT_TAG: 'alt+n',
+    OPEN_PRE_TAG: 'alt+p',
+    UNDO_FILTER: 'alt+z',
+    REDO_FILTER: 'alt+shift+z',
+    CLOSE_MODAL: 'alt+x',
+    OPEN_METADATA: 'alt+i',
   };
 
   // Handle hotkey event
@@ -192,14 +196,14 @@ function App() {
     const imageType = image.type;
 
     // Set image information to layout
-    setTitle(imageName + " | " + appName); // Set title of web to name of image
+    setTitle(imageName + ' | ' + appName); // Set title of web to name of image
 
     // Check support filter in canvas before renders.
     if (!notCanvasFilter) {
       setSupportFilter(true);
     } else {
-      setErrorTitle("Warning");
-      setErrorMessage("All filters are not supported on your browser.");
+      setErrorTitle('Warning');
+      setErrorMessage('All filters are not supported on your browser.');
       setShowErrorModal(true);
     }
 
@@ -212,29 +216,34 @@ function App() {
       const metadata = ExifReader.load(buffer, { expanded: true });
 
       // Because of different property between file types.
-      if (imageType === "image/png") {
+      if (imageType === 'image/png') {
         const PNG = metadata.pngFile;
         // This is dimension of the image in px.
-        width = PNG["Image Width"].value;
-        height = PNG["Image Height"].value;
+        width = PNG['Image Width'].value;
+        height = PNG['Image Height'].value;
 
         if (width >= height) {
-          orient = "landscape";
+          orient = 'landscape';
         } else {
-          orient = "portrait";
+          orient = 'portrait';
         }
-      } else if (imageType === "image/jpeg") {
+      } else if (imageType === 'image/jpeg') {
+        // Delete metadata of thumbnail
+        delete metadata.Thumbnail;
+
         const JPG = metadata.file;
         // This is dimension of the image in px.
-        width = JPG["Image Width"].value;
-        height = JPG["Image Height"].value;
+        width = JPG['Image Width'].value;
+        height = JPG['Image Height'].value;
 
         if (width >= height) {
-          orient = "landscape";
+          orient = 'landscape';
         } else {
-          orient = "portrait";
+          orient = 'portrait';
         }
-      } else if (imageType === "image/webp") {
+      } else if (imageType === 'image/webp') {
+        // Delete metadata of thumbnail
+        delete metadata.Thumbnail;
       }
 
       // set image URL
@@ -251,7 +260,7 @@ function App() {
           width,
           height,
           orient,
-          unit: "px",
+          unit: 'px',
           remove: false,
           cssFilter: {
             Contrast: 100,
@@ -265,7 +274,7 @@ function App() {
             reset: false,
           },
           filterHistory: [
-            "contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)",
+            'contrast(100%) brightness(100%) blur(0px) opacity(100%) saturate(100%) grayscale(0%) invert(0%) sepia(0%)',
           ],
           filterPosition: 0,
           metadata,
@@ -278,9 +287,9 @@ function App() {
         {
           id: countImage,
           name: imageName,
-          icon: "",
+          icon: '',
           loadIcon: false,
-          thumbnail: "",
+          thumbnail: '',
           loadThumbnail: false,
         },
       ]);
@@ -292,25 +301,25 @@ function App() {
     });
 
     // Only support opacity filter for png
-    if (image.type !== "image/png") {
+    if (image.type !== 'image/png') {
       setDisableOpacity(true);
     }
   }
 
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    const loadWasm = async () => {
-      try {
-        setWasm(await import("external"));
-      } catch (err) {
-        console.error(
-          `Unexpected error in loadWasm. [Message: ${err.message}]`
-        );
-      }
-    };
+  // useEffect(() => {
+  //   // eslint-disable-next-line no-unused-expressions
+  //   const loadWasm = async () => {
+  //     try {
+  //       setWasm(await import("external"));
+  //     } catch (err) {
+  //       console.error(
+  //         `Unexpected error in loadWasm. [Message: ${err.message}]`
+  //       );
+  //     }
+  //   };
 
-    loadWasm();
-  }, []);
+  //   loadWasm();
+  // }, []);
 
   // This Effect change title of the websites after switch workplace.
   useEffect(() => {
@@ -320,23 +329,23 @@ function App() {
 
   // Check product or development mode
   useEffect(() => {
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-      setEnv("dev");
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+      setEnv('dev');
     } else {
-      setEnv("pro");
+      setEnv('pro');
     }
   }, []);
 
   // Trigger when website close with some workplaces till working.
   useEffect(() => {
-    if (env === "pro") {
+    if (env === 'pro') {
       setShowUnload(
         <Beforeunload
           onBeforeunload={(event) => {
             if (currentImage === -1) {
               event.preventDefault();
             } else {
-              return "";
+              return '';
             }
           }}
         />
@@ -369,6 +378,8 @@ function App() {
       color4={color4}
       contrast3={contrast3}
       textColor={textColor}
+      inactiveColor={inactiveColor}
+      iconColor={iconColor}
     >
       {/* This component store all keymap for the website. */}
       <HotKeys keyMap={keyMap} handlers={handlers} className="h-100">
@@ -500,6 +511,11 @@ function App() {
           setShowErrorModal={setShowErrorModal}
           setErrorTitle={setErrorTitle}
           setErrorMessage={setErrorMessage}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          color4={color4}
+          textColor={textColor}
         />
 
         {/* This is error modal show more information about problem. */}
@@ -550,11 +566,15 @@ function App() {
           color3={color3}
           color4={color4}
           textColor={textColor}
+          inactiveColor={inactiveColor}
+          iconColor={iconColor}
           setColor1={setColor1}
           setColor2={setColor2}
           setColor3={setColor3}
           setColor4={setColor4}
           setTextColor={setTextColor}
+          setInactiveColor={setInactiveColor}
+          setIconColor={setIconColor}
           setShowColorPicker={setShowColorPicker}
           currentColor={currentColor}
           setCurrentColor={setCurrentColor}
